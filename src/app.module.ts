@@ -2,10 +2,10 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { GetmessageModule } from './modules/getmessage/getmessage.module'
-import { HelperModule } from './helpers/helpers.module';
+import { AuthModule } from './helpers/auth.module';
 
 @Module({
-  imports: [GetmessageModule, HelperModule],
+  imports: [GetmessageModule, AuthModule],
   controllers: [AppController],
   providers: [AppService],
 })
