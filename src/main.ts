@@ -20,8 +20,8 @@ async function bootstrap() {
   };
   app.enableCors(corsOptions);
   const config = new DocumentBuilder()
-    .setTitle('infinity Assurance')
-    .setDescription('infynity service')
+    .setTitle('infinity Assurance_webhook')
+    .setDescription('webHookbackend')
     .setVersion('1.0')
     .addBearerAuth()  
     .build();
