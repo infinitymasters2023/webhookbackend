@@ -3,7 +3,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 
 import { ConnectionPool, Request } from 'mssql';
-import { MessageDto } from './webhook-payload.dto';
+import { MessageDto } from './incomingtext-payload.dto';
 
 @Injectable()
 export class WhatsappWebhookService {
