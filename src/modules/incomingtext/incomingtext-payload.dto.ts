@@ -36,6 +36,8 @@ export class ContactDto {
   @ApiProperty({ type: ProfileDto })
   profile: ProfileDto;
 
+
+  
   @ApiProperty()
   wa_id: string;
 }
