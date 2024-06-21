@@ -1,13 +1,13 @@
 /* eslint-disable prettier/prettier */
 import { Controller, Post, Body } from '@nestjs/common';
-import { WebhookPayloadDto, WebhookRequestDto } from './webhook-payload.dto';
+import { WebhookPayloadDto, WebhookRequestDto } from './incomingtext-payload.dto';
 
 interface WebhookResponse {
   messageBody: string | null;
   from: string | null;
 }
 
-@Controller('webhook')
+@Controller('incomingtext')
 export class WebhookController {
   @Post()
   handleWebhook(@Body() payload: WebhookPayloadDto): WebhookResponse {

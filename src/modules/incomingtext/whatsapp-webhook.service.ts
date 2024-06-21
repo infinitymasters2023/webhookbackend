@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 // src/whatsapp-webhook/whatsapp-webhook.service.ts
 import { Injectable } from '@nestjs/common';
-import { WebhookRequestDto } from './webhook-payload.dto';
+import { WebhookRequestDto } from './incomingtext-payload.dto';
 
 @Injectable()
 export class WhatsappWebhookService {
