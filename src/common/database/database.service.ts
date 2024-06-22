@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from '@nestjs/typeorm';
 import * as path from 'path';
 import * as glob from 'glob';
+import * as dotenv from 'dotenv';
+dotenv.config(); 
 
 @Injectable()
 export class DatabaseService implements TypeOrmOptionsFactory {
@@ -12,7 +14,7 @@ export class DatabaseService implements TypeOrmOptionsFactory {
       username: process.env.DB_USER || 'azure-sa',
       password: process.env.DB_PASS || 'Pass@123',
       database: process.env.DB_NAME || 'iapl',
-      host: process.env.DB_HOST || 'DESKTOP-VN976RP\INFYSHIELD',
+      host: process.env.DB_HOST || '192.168.1.12',
       port: +dbPort,
       type: 'mssql',
       entities: entities,

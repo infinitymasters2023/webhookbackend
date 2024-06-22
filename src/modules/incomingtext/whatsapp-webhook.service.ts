@@ -12,22 +12,28 @@ export class WhatsappWebhookService {
         
     ) { }
 
-  async handleWebhook(messageDto:MessageDto): Promise<any> {
-    try {
-        const poolConnection = await this.pool.connect();
-        const request = new Request(poolConnection);
-        request.input('Type',1);
-       // request.input(' id', messageDto.messagesid);
-        const result = await request.execute('InsertClientCallback');
-        const insertedData = result.recordsets[0];   
-        return insertedData;
-    } catch (error) {
-        console.log('error', error);
-        throw error;
-    } finally {
-        if (this.pool.connected) {
-            await this.pool.close();
+    async handleWebhook(messageDto:MessageDto): Promise<any> {
+        try {
+            const poolConnection = await this.pool.connect();
+            const request = new Request(poolConnection);
+            request.input('Type',1);
+            request.input(' id', '545645');
+            request.input('from_contact', messageDto.from);
+            request.input(' message_id', messageDto.message_id);
+            request.input('  body', messageDto.text);
+            request.input(' timestamp', messageDto.timestamp);
+            request.input(' type', messageDto.type);
+           
+            const result = await request.execute('InsertWebhookData');
+            const insertedData = result.recordsets[0];   
+            return insertedData;
+        } catch (error) {
+            console.log('error', error);
+            throw error;
+        } finally {
+            if (this.pool.connected) {
+                await this.pool.close();
+            }
         }
     }
-}
 }

@@ -1,6 +1,8 @@
 
 
 import { ConnectionPool } from 'mssql';
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 export const databaseProviders = [
     {
@@ -12,8 +14,16 @@ export const databaseProviders = [
                     password: process.env.DB_PASS || 'ugsf127ghFHSD86dfsDS',
                     server: process.env.DB_HOST || 'infinitysqlmanagedinstance.22e461bedfe7.database.windows.net',
                     database: process.env.DB_NAME || 'iapl',
+                    connectionTimeout: 30000,
+                    requestTimeout: 30000,
                     options: {
-                        encrypt: false,
+                        encrypt: true,
+                        trustServerCertificate: true
+                    },
+                    pool: {
+                        max: 10,
+                        min: 0,
+                        idleTimeoutMillis: 30000,
                     },
                 });
 
@@ -27,3 +37,8 @@ export const databaseProviders = [
         },
     },
 ];
+
+export const asyncDatabaseProviders = databaseProviders.map(provider => ({
+    ...provider,
+    useFactory: async () => await provider.useFactory(),
+}));
