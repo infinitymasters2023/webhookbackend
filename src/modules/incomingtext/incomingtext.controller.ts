@@ -1,17 +1,17 @@
-/* eslint-disable prettier/prettier */
 import { Controller,Inject, Post, Body } from '@nestjs/common';
 import { WebhookPayloadDto } from './incomingtext-payload.dto';
 import { ConnectionPool, Request } from 'mssql';
+import { IncomingResponse } from './incomingtext.response.interface';
+import { IncomingTextService } from './incomingtext.service';
 
-interface WebhookResponse {
-  messageBody: string | null;
-  from: string | null;
-}
 
 @Controller('incomingtext')
-export class WebhookController {
+export class IncomingtextController {
 
-  constructor(@Inject('DATABASE_CONNECTION') private readonly pool: ConnectionPool) {}
+  constructor(@Inject('DATABASE_CONNECTION') 
+  private readonly pool: ConnectionPool, 
+  private readonly whatsappWebhookService: IncomingTextService) 
+  {}
   // async executeStoredProcedure(type: string, params: any = {}): Promise<any> {
   
   //   try {
@@ -33,17 +33,20 @@ export class WebhookController {
 
 
   @Post()
-  handleWebhook(@Body() payload: WebhookPayloadDto): WebhookResponse {
+  async handleWebhook(@Body() payload: WebhookPayloadDto): Promise<IncomingResponse> {
     if (payload.messages && payload.messages.length > 0) {
       const firstMessage = payload.messages[0];
       console.log('Received message:', firstMessage.text.body);
+
+      // Save the message using the service
+      await this.whatsappWebhookService.handleWebhook(firstMessage);
+
       return {
         messageBody: firstMessage.text.body,
         from: firstMessage.from
       };
     }
 
-    
     return {
       messageBody: null,
       from: null

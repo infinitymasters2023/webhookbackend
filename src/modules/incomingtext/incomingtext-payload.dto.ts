@@ -36,8 +36,6 @@ export class ContactDto {
   @ApiProperty({ type: ProfileDto })
   profile: ProfileDto;
 
-
-  
   @ApiProperty()
   wa_id: string;
 }
@@ -47,9 +45,17 @@ export class TextDto {
 }
 
 export class MessageDto {
+
+
+  @ApiProperty()
+  wa_id: number;
+  
+  @ApiProperty()
+  name: string;
   @ApiProperty()
   id: string;
 
+  
   @ApiProperty()
   from: string;
 
@@ -61,6 +67,12 @@ export class MessageDto {
 
   @ApiProperty()
   message_id: string;
+
+  @ApiProperty()
+  brand_msisdn: number;
+
+  @ApiProperty()
+  request_id: number;
 
   @ApiProperty({ type: TextDto })
   text: TextDto;
@@ -75,8 +87,8 @@ export class WebhookPayloadDto {
   @ApiProperty({ type: [ContactDto] })
   contacts: ContactDto[];
 
-  @ApiProperty()
-  brand_msisdn: string;
+  // @ApiProperty()
+  // brand_msisdn: string;
 
   @ApiProperty()
   request_id: string;
