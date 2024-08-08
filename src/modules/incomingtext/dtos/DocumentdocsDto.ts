@@ -38,3 +38,9 @@ export class DocumentdocsDto {
   })
   media_url: string;
 }
+export class MessageInfoDto {
+  @ApiProperty({ default: 'text' })
+  type: string = 'text';
+  @ApiProperty()
+  from: string;
+}

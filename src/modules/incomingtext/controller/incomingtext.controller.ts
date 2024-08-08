@@ -1,12 +1,13 @@
 /* eslint-disable prettier/prettier */
-import { Controller,Inject, Post, Body ,Get} from '@nestjs/common';
-import {  CreateMessageDto,  WebhookPayloadDto } from '../dtos/incomingtext-payload.dto';
+import { Controller,Inject, Post, Body ,Get, HttpException, HttpStatus} from '@nestjs/common';
+import {  CreateMessageDto,  MessageDto,  WebhookPayloadDto } from '../dtos/incomingtext-payload.dto';
 import { ConnectionPool } from 'mssql';
 import { IncomingResponse } from '../dtos/incomingtext.response.interface';
 import { IncomingTextService } from '../service/incomingtext.service';
 
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { MessagedocsDto } from '../dtos/MessagedocsDto';
+import { MessageInfoDto } from '../dtos/DocumentdocsDto';
 
 
 @Controller('incoming')
@@ -70,4 +71,16 @@ export class IncomingtextController {
   async handleDocumentsWebhook(@Body() messageDto: MessagedocsDto): Promise<any> {
     return this.whatsappWebhookService.handledocsWebhook(messageDto);
   }
+  @Post('webhook')
+    public async handleIncomingText(@Body() data: any,messageInfoDto: MessageInfoDto, messageDto: MessageDto ,messagedocsDto: MessagedocsDto): Promise<any> {
+        try {
+            return await this.whatsappWebhookService.handleIncomingMessage(messageInfoDto,messageDto,messagedocsDto);
+        } catch (error) {
+            console.error('Error handling incoming message:', error);
+            throw new HttpException(
+                'Failed to process the incoming message',
+                HttpStatus.INTERNAL_SERVER_ERROR
+            );
+        }
+    }
 }
