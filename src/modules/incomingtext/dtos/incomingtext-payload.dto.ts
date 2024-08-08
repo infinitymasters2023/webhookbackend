@@ -296,5 +296,95 @@ export class CreateMessageDto {
 }
 
 
+/************************************************************************************************************************************************************ */
+class DocumentDto {
+  @ApiProperty({
+    description: 'The URL of the document',
+    example: 'https://example.com/sample.pdf',
+  })
+  @IsString()
+  @IsNotEmpty()
+  link: string;
 
+  @ApiProperty({
+    description: 'The name of the document file',
+    example: 'sample.pdf',
+  })
+  @IsString()
+  @IsNotEmpty()
+  file_name: string;
+}
 
+// class TextDto {
+//   @ApiProperty({
+//     description: 'Text content for the message',
+//     example: 'Hello, this is a test message!',
+//   })
+//   @IsString()
+//   @IsNotEmpty()
+//   text: string;
+// }
+
+// class HeaderDto {
+//   @ApiProperty({
+//     description: 'Document details in the header',
+//     type: DocumentDto,
+//   })
+//   @ValidateNested()
+//   @Type(() => DocumentDto)
+//   document: DocumentDto;
+// }
+
+export class SendMessagePayloadDto {
+  @ApiProperty({ type: [Object] })
+  header: {
+    document: {
+      link: string;
+      file_name: string;
+    };
+  }[];
+
+  @ApiProperty({ type: [Object] })
+  body: {
+    text: string;
+  }[];
+}
+export class SendMessageRequestDto {
+  @ApiProperty()
+  phone: string;
+
+  @ApiProperty()
+  documentLink: string;
+
+  @ApiProperty()
+  fileName: string;
+
+  @ApiProperty()
+  message1: string;
+
+  @ApiProperty()
+  message2: string;
+}
+export class DocumentdocsDto {
+  caption: string;
+  file: string;
+  id: string;
+  mime_type: string;
+  sha256: string;
+  media_url: string;
+}
+
+export class MessagedocsDto {
+  from: string;
+  id: string;
+  timestamp: string;
+  type: string;
+  document: DocumentDto;
+}
+
+export class InsertWebhookdocsDataDto {
+  apiKey: string;
+  messages: MessageDto[];
+  brand_msisdn: string;
+  request_id: string;
+}
