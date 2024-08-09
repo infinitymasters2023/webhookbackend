@@ -54,3 +54,10 @@ export class MessageallDto {
   name?: string;
   wa_id?: string;
 }
+export class MessagedocssDto {
+  id: string;
+  @ApiProperty()
+  from: string;
+  @ApiProperty()
+  type: string;
+}

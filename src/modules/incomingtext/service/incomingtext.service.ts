@@ -5,7 +5,8 @@ import { MessageDto,   WhatsappDto } from '../dtos/incomingtext-payload.dto';
 import { v4 as uuidv4 } from 'uuid';
 import axios from 'axios';
 import { MessagedocsDto } from '../dtos/MessagedocsDto';
-import { MessageallDto } from '../dtos/DocumentdocsDto';
+import { MessagedocssDto } from '../dtos/DocumentdocsDto';
+//import { MessageallDto } from '../dtos/DocumentdocsDto';
 
 
 @Injectable()
@@ -18,31 +19,17 @@ export class IncomingTextService {
     @Inject('DATABASE_CONNECTION') private readonly pool: ConnectionPool,
   ) {}
 
-  public async handleallWebhook(messageDtoo: MessageallDto): Promise<any> {
-    console.log('Incoming message data:', messageDtoo);
-  
-    if (messageDtoo.type === 'text') {
-      console.log('Processing as text message');
-      
-      // Use type guard to validate and process
-      if (this.isMessageDto(messageDtoo)) {
-        return this.handleWebhook(messageDtoo);
-      } else {
-        throw new Error('Invalid message format for text message');
-      }
-    } else if (messageDtoo.type === 'document') {
-      console.log('Processing as document message');
-      
-      // Use type guard to validate and process
-      if (this.isDocumentDto(messageDtoo)) {
-        return this.handledocsWebhook(messageDtoo);
-      } else {
-        throw new Error('Invalid message format for document message');
-      }
-    } else {
-      throw new Error('Unsupported message type');
+  public async processIncomingMessage(message: MessagedocssDto): Promise<any> {
+    switch (message.type) {
+      case 'text':
+        return this.handleWebhook(message as MessageDto);
+      // case 'document':
+      //   return this.handledocsWebhook(message as MessagedocsDto);
+      default:
+        throw new Error(`Unsupported message type: ${message.type}`);
     }
   }
+
   
 
   private isMessageDto(dto: any): dto is MessageDto {

@@ -7,7 +7,7 @@ import { IncomingTextService } from '../service/incomingtext.service';
 
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { MessagedocsDto } from '../dtos/MessagedocsDto';
-import { MessageallDto } from '../dtos/DocumentdocsDto';
+import { MessageallDto, MessagedocssDto } from '../dtos/DocumentdocsDto';
 
 
 
@@ -72,8 +72,8 @@ export class IncomingtextController {
   async handleDocumentsWebhook(@Body() messageDto: MessagedocsDto): Promise<any> {
     return this.whatsappWebhookService.handledocsWebhook(messageDto);
   }
-  @Post()
-  async handleIncomingMessage(@Body() messageDto:  MessageallDto) {
-    return this.whatsappWebhookService.handleallWebhook(messageDto);
+  @Post('incoming')
+  async handleIncomingMessage(@Body() messageDto:  MessagedocssDto) {
+    return this.whatsappWebhookService.processIncomingMessage(messageDto);
   }
 }
