@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import { IsArray, IsNotEmpty, IsObject, IsString, ValidateNested } from "class-validator";
+import { IsArray, IsObject, IsString, ValidateNested } from "class-validator";
 
 /* eslint-disable prettier/prettier */
 // export class WebhookPayloadDto {
@@ -101,7 +101,7 @@ export class Image {
     description: 'Path to the file',
     example: '/usr/local/wamedia/shared/b1cf38-8734-4ad3-b4a1-ef0c10d0d683',
   })
-  @IsNotEmpty()
+ 
   @IsString()
   file: string;
 
@@ -109,7 +109,7 @@ export class Image {
     description: 'ID of the image',
     example: 'b1c68f38-8734-4ad3-b4a1-ef0c10d683',
   })
-  @IsNotEmpty()
+ 
   @IsString()
   id: string;
 
@@ -117,7 +117,7 @@ export class Image {
     description: 'MIME type of the image',
     example: 'image/jpeg',
   })
-  @IsNotEmpty()
+
   @IsString()
   mime_type: string;
 
@@ -125,7 +125,7 @@ export class Image {
     description: 'SHA256 hash of the image',
     example: '29ed500fa64eb55fc19dc4124acb300e5dcca301ae99944db',
   })
-  @IsNotEmpty()
+
   @IsString()
   sha256: string;
 
@@ -133,7 +133,7 @@ export class Image {
     description: 'Caption for the image',
     example: 'Check out my new phone!',
   })
-  @IsNotEmpty()
+
   @IsString()
   caption: string;
 
@@ -141,7 +141,7 @@ export class Image {
     description: 'URL to access the media',
     example: 'https://apis.rmlconnect.net/wba/v1/media?media_id=fc233119-733f-49c-bcbd-b2f68f798e33&username=demo',
   })
-  @IsNotEmpty()
+
   @IsString()
   media_url: string;
 }
@@ -303,7 +303,7 @@ class DocumentDto {
     example: 'https://example.com/sample.pdf',
   })
   @IsString()
-  @IsNotEmpty()
+
   link: string;
 
   @ApiProperty({
@@ -311,7 +311,7 @@ class DocumentDto {
     example: 'sample.pdf',
   })
   @IsString()
-  @IsNotEmpty()
+
   file_name: string;
 }
 
