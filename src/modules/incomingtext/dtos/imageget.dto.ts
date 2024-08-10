@@ -3,16 +3,27 @@ import { ApiProperty } from '@nestjs/swagger';
 import { ImageMessageDto } from './imagemessage.dto';
 
 export class CreateMessageDto {
-  @ApiProperty()
+  @ApiProperty({
+    description: 'API key for authentication'
+    
+  })
   apiKey: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    description: 'Array of message objects',
+    type: [ImageMessageDto],
+  })
   messages: ImageMessageDto[];
 
-  @ApiProperty()
+  @ApiProperty({
+    description: 'Brand MSISDN'
+    
+  })
   brand_msisdn: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    description: 'Unique request identifier'
+  })
   request_id: string;
 }
 /* eslint-disable prettier/prettier */

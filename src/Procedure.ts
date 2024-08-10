@@ -1,8 +1,16 @@
 /* eslint-disable prettier/prettier */
-/***************new  */
+
+
+
+
+
+
+
+
+
 // USE [iapl]
 // GO
-// /****** Object:  StoredProcedure [dbo].[InsertWebhookData]    Script Date: 8/8/2024 10:31:10 AM ******/
+// /****** Object:  StoredProcedure [dbo].[InsertWebhookData]    Script Date: 8/10/2024 9:35:23 AM ******/
 // SET ANSI_NULLS ON
 // GO
 // SET QUOTED_IDENTIFIER ON
@@ -27,7 +35,15 @@
 // 	 @id_docs INT = NULL,
 // 	 @mime_type NVARCHAR(50) = NULL,
 //      @sha256 CHAR(64) = NULL,
-//      @media_url NVARCHAR(MAX) = NULL
+//      @media_url NVARCHAR(MAX) = NULL,
+//     @from_msisdn VARCHAR(20)=Null,
+//  	 @api_Key NVARCHAR(255) = NULL,
+ 
+//     @message_type VARCHAR(20)=Null,
+//     @file_path VARCHAR(255)=null,
+//     @image_id VARCHAR(100)=null
+
+ 
 //  AS
 //  BEGIN
 //      SET NOCOUNT ON;
@@ -40,18 +56,47 @@
 	 
 // 	 IF (@type ='2')
 // 	 BEGIN
-// 		INSERT INTO iapl_getwebhookdocuments (apiKey, [from], [timestamp], [type], document, caption, [file], id_docs, mime_type, sha256, media_url)
-//         VALUES (@apiKey, @from, @timestamp, @type, @document, @caption, @file, @id_docs, @mime_type, @sha256, @media_url);
+// 		INSERT INTO iapl_getwebhookdocuments (apiKey, [from], [timestamp], [type], document, caption, [file], id_docs, mime_type, sha256, media_url,create_date)
+//         VALUES (@apiKey, @from, @timestamp, @type, @document, @caption, @file, @id_docs, @mime_type, @sha256, @media_url,GETDATE());
+// 	END
+// 	 IF (@type ='3')
+// 	 BEGIN
+// 		INSERT INTO webhookimages (
+//     api_key, 
+//     from_msisdn, 
+//     timestamp, 
+//     message_id, 
+//     message_type, 
+//     file_path, 
+//     image_id, 
+//     mime_type, 
+//     sha256, 
+//     caption, 
+//     media_url, 
+//     brand_msisdn, 
+//     request_id, 
+//     created_at
+// )
+// VALUES (
+//     @api_Key, 
+//     @from_msisdn, 
+//     @timestamp, 
+//     @message_id, 
+//     @message_type, 
+//     @file_path, 
+//     @image_id, 
+//     @mime_type, 
+//     @sha256, 
+//     @caption, 
+//     @media_url, 
+//     @brand_msisdn, 
+//     @request_id,
+//     GETDATE()
+// );
 // 	END
 //  END;
 
-
-
-
-
-
-
-
+ 
 
 
 
