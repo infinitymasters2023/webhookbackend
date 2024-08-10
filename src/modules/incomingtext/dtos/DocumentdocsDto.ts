@@ -2,40 +2,22 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 export class DocumentdocsDto {
-  @ApiProperty({
-    description: 'Caption of the document',
-    example: '80skaraokesonglistartist',
-  })
+  @ApiProperty()
   caption: string;
 
-  @ApiProperty({
-    description: 'File path of the document',
-   example: '/usr/local/wamedia/shared/fc233119-733f-49c-bcbd-b2f68f798e33',
-  })
+  @ApiProperty()
   file: string;
 
-  @ApiProperty({
-    description: 'Unique identifier of the document',
-  example: 'fc233119-733f-49c-bcbd-b2f68f798e33',
-  })
+  @ApiProperty()
   id: string;
 
-  @ApiProperty({
-    description: 'MIME type of the document',
-   example: 'application/pdf',
-  })
+  @ApiProperty()
   mime_type: string;
 
-  @ApiProperty({
-    description: 'SHA256 checksum of the document',
-    example: '3b11fa6ef2bde1dd14726e09d3eda220f6484f32d5d5caa4b8e',
-  })
+  @ApiProperty()
   sha256: string;
 
-  @ApiProperty({
-    description: 'Media URL of the document',
-    example: 'https://apis.rmlconnect.net/wba/v1/media?media_id=fc233119-733f-49c-bcbd-b2f68f798e33&username=demo',
-  })
+  @ApiProperty()
   media_url: string;
 }
 export class MessageallDto {

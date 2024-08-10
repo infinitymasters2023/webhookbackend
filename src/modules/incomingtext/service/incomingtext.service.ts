@@ -1,11 +1,13 @@
 /* eslint-disable prettier/prettier */
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { ConnectionPool, Request } from 'mssql';
-import { MessageDto,   WhatsappDto } from '../dtos/incomingtext-payload.dto';
+import {  MessageDto,   WhatsappDto } from '../dtos/incomingtext-payload.dto';
 import { v4 as uuidv4 } from 'uuid';
 import axios from 'axios';
 import { MessagedocsDto } from '../dtos/MessagedocsDto';
 import { MessagedocssDto } from '../dtos/DocumentdocsDto';
+import { CreateMessageDto } from '../dtos/imageget.dto';
+
 //import { MessageallDto } from '../dtos/DocumentdocsDto';
 
 
@@ -23,8 +25,7 @@ export class IncomingTextService {
     switch (message.type) {
       case 'text':
         return this.handleWebhook(message as MessageDto);
-      // case 'document':
-      //   return this.handledocsWebhook(message as MessagedocsDto);
+  
       default:
         throw new Error(`Unsupported message type: ${message.type}`);
     }
@@ -70,6 +71,55 @@ export class IncomingTextService {
         error.response?.data || 'An error occurred while retrieving token',
         error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR
       );
+    }
+  }
+  async handleIncomingImageMessage(createMessageDto: CreateMessageDto): Promise<any> {
+    // Simulate saving or processing the data
+    console.log('Received message:', createMessageDto);
+    let poolConnection;
+    try {
+      poolConnection = await this.pool.connect();
+      const request = new Request(poolConnection);
+
+      // Use appropriate fields from the DTO
+      request.input('Type', 3);
+      request.input('id', uuidv4());
+      request.input('api_key', createMessageDto.apiKey);
+      request.input('from_msisdn', createMessageDto.messages[0]?.from); // Adjust if needed
+      request.input('message_id', createMessageDto.messages[0]?.id); // Assuming messages array has at least one item
+      request.input('file_path', createMessageDto.messages[0]?.image?.file); // Adjust as necessary
+      request.input('image_id', createMessageDto.messages[0]?.image?.id); // Adjust as necessary
+      request.input('mime_type', createMessageDto.messages[0]?.image?.mime_type); // Adjust as necessary
+      request.input('sha256', createMessageDto.messages[0]?.image?.sha256); // Adjust as necessary
+      request.input('caption', createMessageDto.messages[0]?.image?.caption); // Adjust as necessary
+      request.input('media_url', createMessageDto.messages[0]?.image?.media_url); // Adjust as necessary
+     // request.input('timestamp', createMessageDto.messages[0]?.timestamp); // Adjust as necessary
+      request.input('message_type', createMessageDto.messages[0]?.type); // Adjust as necessary
+      request.input('brand_msisdn', createMessageDto.brand_msisdn);
+      request.input('request_id', createMessageDto.request_id);
+
+      const result = await request.execute('InsertWebhookData');
+      const insertedData = result.recordset && result.recordset.length > 0 ? result.recordset[0] : null;
+
+      // Get the auth token
+      const authToken = await this.getAuthToken();
+
+      // Prepare and send WhatsApp message
+      const whatsappDto: WhatsappDto = {
+        phone: `+91${createMessageDto.messages[0]?.from}`, // Adjust as necessary
+      };
+
+      const whatsappResponse = await this.sendWhatsappMessage(whatsappDto);
+      console.log('WhatsApp API Response:', whatsappResponse);
+
+      return insertedData;
+    } catch (error) {
+      console.log('Error inserting webhook data:', error);
+      throw error;
+    } finally {
+      if (poolConnection) {
+        await poolConnection.close();
+      }
     }
   }
   public async handleWebhook(messageDto: MessageDto): Promise<any> {
@@ -142,11 +192,11 @@ export class IncomingTextService {
       request.input('id', uuidv4());
       request.input('from', messagedocsDto.from);
       request.input('message_id', messagedocsDto.id);
-      request.input('caption', messagedocsDto.document.caption || ''); // Use a default empty string if caption is missing
-      request.input('file', messagedocsDto.document.file || ''); // Use a default empty string if file is missing
-      request.input('mime_type', messagedocsDto.document.mime_type || ''); // Use a default empty string if mime_type is missing
-      request.input('sha256', messagedocsDto.document.sha256 || ''); // Use a default empty string if sha256 is missing
-      request.input('media_url', messagedocsDto.document.media_url || ''); // Use a default empty string if media_url is missing
+      request.input('caption', messagedocsDto.document.caption ); // Use a default empty string if caption is missing
+      request.input('file', messagedocsDto.document.file ); // Use a default empty string if file is missing
+      request.input('mime_type', messagedocsDto.document.mime_type); // Use a default empty string if mime_type is missing
+      request.input('sha256', messagedocsDto.document.sha256); // Use a default empty string if sha256 is missing
+      request.input('media_url', messagedocsDto.document.media_url); // Use a default empty string if media_url is missing
   
       const result = await request.execute('InsertWebhookData');
       const insertedData = result.recordset && result.recordset.length > 0 ? result.recordset[0] : null;
@@ -179,6 +229,17 @@ export class IncomingTextService {
   private readonly whatsappApiUrl = 'https://apis.rmlconnect.net/wba/v1/messages';
 
  
+
+
+    async handleIncomingMessage(createMessageDto: CreateMessageDto ): Promise<any> {
+      // Simulate saving or processing the data
+      console.log('Received message:', createMessageDto);
+  
+      // Here you could implement your logic, such as calling another service, saving to a database, etc.
+      return { success: true, data: createMessageDto };
+    }
+  
+
 
   public async sendWhatsappMessage(whatsappDto: WhatsappDto): Promise<any> {
     try {

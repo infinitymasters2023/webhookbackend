@@ -262,34 +262,22 @@ export class WhatsappDto {
 }
 
 export class CreateMessageDto {
-  @ApiProperty({
-    description: 'API key for authentication',
-    example: 'IfgKh@jHkB5%232roUt20nhVgfb!ll*mv12lSt',
-  })
+  @ApiProperty()
 
   @IsString()
   apiKey: string;
 
-  @ApiProperty({
-    type: [Message],
-    description: 'Array of messages',
-  })
+  @ApiProperty()
   @ValidateNested({ each: true })
   @Type(() => Message)
   messages: Message[];
 
-  @ApiProperty({
-    description: 'Brand MSISDN (phone number)',
-
-  })
+  @ApiProperty()
 
   @IsString()
   brand_msisdn: string;
 
-  @ApiProperty({
-    description: 'Request ID',
-
-  })
+  @ApiProperty()
 
   @IsString()
   request_id: string;

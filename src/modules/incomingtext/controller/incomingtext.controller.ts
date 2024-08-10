@@ -1,13 +1,15 @@
 /* eslint-disable prettier/prettier */
 import { Controller,Inject, Post, Body ,Get} from '@nestjs/common';
-import {  CreateMessageDto,    WebhookPayloadDto } from '../dtos/incomingtext-payload.dto';
+import {  WebhookPayloadDto } from '../dtos/incomingtext-payload.dto';
 import { ConnectionPool } from 'mssql';
 import { IncomingResponse } from '../dtos/incomingtext.response.interface';
 import { IncomingTextService } from '../service/incomingtext.service';
 
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { MessagedocsDto } from '../dtos/MessagedocsDto';
-import { MessageallDto, MessagedocssDto } from '../dtos/DocumentdocsDto';
+import { MessagedocssDto } from '../dtos/DocumentdocsDto';
+import { CreateMessageDto } from '../dtos/imageget.dto';
+
 
 
 
@@ -58,14 +60,14 @@ export class IncomingtextController {
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
 
-  @Post('/image')
-  create(@Body() createMessageDto: CreateMessageDto) {
+  // @Post('/image')
+  // create(@Body() createMessageDto: CreateMessageDto) {
 
     
-    // Handle the incoming request here
-    console.log(createMessageDto);
-    return { status: 'success', data: createMessageDto };
-  }
+  //   // Handle the incoming request here
+  //   console.log(createMessageDto);
+  //   return { status: 'success', data: createMessageDto };
+  // }
 
   @Post('documents')
  
@@ -75,5 +77,9 @@ export class IncomingtextController {
   @Post('incoming')
   async handleIncomingMessage(@Body() messageDto:  MessagedocssDto) {
     return this.whatsappWebhookService.processIncomingMessage(messageDto);
+  }
+  @Post('/imageurl')
+  async createMessage(@Body() createMessageDto: CreateMessageDto ): Promise<any> {
+    return this.whatsappWebhookService.handleIncomingImageMessage(createMessageDto);
   }
 }

@@ -1,8 +1,8 @@
 /* eslint-disable prettier/prettier */
 import { ApiProperty } from '@nestjs/swagger';
-import { DocumentdocsDto } from './DocumentdocsDto'; // Adjust the path as needed
+import { ImageDto } from './image.dto';
 
-export class MessagedocsDto {
+export class ImageMessageDto {
   @ApiProperty()
   from: string;
 
@@ -10,11 +10,12 @@ export class MessagedocsDto {
   id: string;
 
   @ApiProperty()
+  image: ImageDto;
+
+  @ApiProperty()
   timestamp: string;
 
   @ApiProperty()
   type: string;
-
-  @ApiProperty()
-  document: DocumentdocsDto;
 }
+/* eslint-disable prettier/prettier */
