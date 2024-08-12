@@ -5,7 +5,7 @@ import {  MessageDto,   WhatsappDto } from '../dtos/incomingtext-payload.dto';
 import { v4 as uuidv4 } from 'uuid';
 import axios from 'axios';
 import { MessagedocsDto } from '../dtos/MessagedocsDto';
-import { MessagedocssDto } from '../dtos/DocumentdocsDto';
+import { MessagedocssDto, RequestDto, VoiceDto } from '../dtos/DocumentdocsDto';
 import { CreateMessageDto } from '../dtos/imageget.dto';
 
 //import { MessageallDto } from '../dtos/DocumentdocsDto';
@@ -73,55 +73,7 @@ export class IncomingTextService {
       );
     }
   }
-  async handleIncomingImageMessage(createMessageDto: CreateMessageDto): Promise<any> {
-    // Simulate saving or processing the data
-    console.log('Received message:', createMessageDto);
-    let poolConnection;
-    try {
-      poolConnection = await this.pool.connect();
-      const request = new Request(poolConnection);
-
-      // Use appropriate fields from the DTO
-      request.input('Type', 3);
-      request.input('id', uuidv4());
-      request.input('api_key', createMessageDto.apiKey);
-      request.input('from_msisdn', createMessageDto.messages[0]?.from); // Adjust if needed
-      request.input('message_id', createMessageDto.messages[0]?.id); // Assuming messages array has at least one item
-      request.input('file_path', createMessageDto.messages[0]?.image?.file); // Adjust as necessary
-      request.input('image_id', createMessageDto.messages[0]?.image?.id); // Adjust as necessary
-      request.input('mime_type', createMessageDto.messages[0]?.image?.mime_type); // Adjust as necessary
-      request.input('sha256', createMessageDto.messages[0]?.image?.sha256); // Adjust as necessary
-      request.input('caption', createMessageDto.messages[0]?.image?.caption); // Adjust as necessary
-      request.input('media_url', createMessageDto.messages[0]?.image?.media_url); // Adjust as necessary
-     // request.input('timestamp', createMessageDto.messages[0]?.timestamp); // Adjust as necessary
-      request.input('message_type', createMessageDto.messages[0]?.type); // Adjust as necessary
-      request.input('brand_msisdn', createMessageDto.brand_msisdn);
-      request.input('request_id', createMessageDto.request_id);
-
-      const result = await request.execute('InsertWebhookData');
-      const insertedData = result.recordset && result.recordset.length > 0 ? result.recordset[0] : null;
-
-      // Get the auth token
-      const authToken = await this.getAuthToken();
-
-      // Prepare and send WhatsApp message
-      const whatsappDto: WhatsappDto = {
-        phone: `+91${createMessageDto.messages[0]?.from}`, // Adjust as necessary
-      };
-
-      const whatsappResponse = await this.sendWhatsappMessage(whatsappDto);
-      console.log('WhatsApp API Response:', whatsappResponse);
-
-      return insertedData;
-    } catch (error) {
-      console.log('Error inserting webhook data:', error);
-      throw error;
-    } finally {
-      if (poolConnection) {
-        await poolConnection.close();
-      }
-    }
-  }
+ 
   public async handleWebhook(messageDto: MessageDto): Promise<any> {
     let poolConnection;
     try {
@@ -225,6 +177,57 @@ export class IncomingTextService {
     }
   }
 
+
+  async handleIncomingImageMessage(createMessageDto: CreateMessageDto): Promise<any> {
+    // Simulate saving or processing the data
+    console.log('Received message:', createMessageDto);
+    let poolConnection;
+    try {
+      poolConnection = await this.pool.connect();
+      const request = new Request(poolConnection);
+
+      // Use appropriate fields from the DTO
+      request.input('Type', 3);
+      request.input('id', uuidv4());
+      request.input('api_key', createMessageDto.apiKey);
+      request.input('from_msisdn', createMessageDto.messages[0]?.from); // Adjust if needed
+      request.input('message_id', createMessageDto.messages[0]?.id); // Assuming messages array has at least one item
+      request.input('file_path', createMessageDto.messages[0]?.image?.file); // Adjust as necessary
+      request.input('image_id', createMessageDto.messages[0]?.image?.id); // Adjust as necessary
+      request.input('mime_type', createMessageDto.messages[0]?.image?.mime_type); // Adjust as necessary
+      request.input('sha256', createMessageDto.messages[0]?.image?.sha256); // Adjust as necessary
+      request.input('caption', createMessageDto.messages[0]?.image?.caption); // Adjust as necessary
+      request.input('media_url', createMessageDto.messages[0]?.image?.media_url); // Adjust as necessary
+     // request.input('timestamp', createMessageDto.messages[0]?.timestamp); // Adjust as necessary
+      request.input('message_type', createMessageDto.messages[0]?.type); // Adjust as necessary
+      request.input('brand_msisdn', createMessageDto.brand_msisdn);
+      request.input('request_id', createMessageDto.request_id);
+
+      const result = await request.execute('InsertWebhookData');
+      const insertedData = result.recordset && result.recordset.length > 0 ? result.recordset[0] : null;
+
+      // Get the auth token
+      const authToken = await this.getAuthToken();
+
+      // Prepare and send WhatsApp message
+      const whatsappDto: WhatsappDto = {
+        phone: `+91${createMessageDto.messages[0]?.from}`, // Adjust as necessary
+      };
+
+      const whatsappResponse = await this.sendWhatsappMessage(whatsappDto);
+      console.log('WhatsApp API Response:', whatsappResponse);
+      console.log('Auth Token:', authToken);
+      return insertedData;
+    } catch (error) {
+      console.log('Error inserting webhook data:', error);
+      throw error;
+    } finally {
+      if (poolConnection) {
+        await poolConnection.close();
+      }
+    }
+  }
+
   
   private readonly whatsappApiUrl = 'https://apis.rmlconnect.net/wba/v1/messages';
 
@@ -272,6 +275,75 @@ export class IncomingTextService {
         error.response?.data || 'An error occurred while sending message',
         error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR
       );
+    }
+  }
+
+  public async processMessage(requestDto: RequestDto) {
+    // Implement your processing logic here
+    console.log('Processing request:', requestDto);
+    let poolConnection;
+  
+    try {
+      poolConnection = await this.pool.connect();
+      const request = new Request(poolConnection);
+  
+      // Ensure there's at least one message
+      const firstMessage = requestDto.messages[0];
+      if (!firstMessage) {
+        throw new Error('No message found in the requestDto.');
+      }
+  
+      // Use appropriate fields from the DTO
+      request.input('Type', 4); // Adjust if needed
+      request.input('id', uuidv4());
+      // request.input('api_key', requestDto.apiKey); // Uncomment if apiKey is used
+  
+      request.input('From', firstMessage.from || null);
+      request.input('MessageId', firstMessage.id || null);
+      request.input('Timestamp', firstMessage.timestamp || null);
+      request.input('type_voice', firstMessage.type || null);
+      request.input('BrandMsisdn', requestDto.brand_msisdn || null);
+      request.input('RequestId', requestDto.request_id || null);
+  
+      // Voice details
+      const voice: VoiceDto = firstMessage.voice;
+      if (voice) {
+        request.input('VoiceId', voice.id || null);
+        request.input('VoiceFile', voice.file || null);
+        request.input('VoiceMimeType', voice.mime_type || null);
+        request.input('VoiceSha256', voice.sha256 || null);
+        request.input('VoiceMediaUrl', voice.media_url || null);
+      } else {
+        request.input('VoiceId', null);
+        request.input('VoiceFile', null);
+        request.input('VoiceMimeType', null);
+        request.input('VoiceSha256', null);
+        request.input('VoiceMediaUrl', null);
+      }
+  
+      const result = await request.execute('InsertWebhookData');
+      const insertedData = result.recordset && result.recordset.length > 0 ? result.recordset[0] : null;
+  
+      // Get the auth token
+      const authToken = await this.getAuthToken();
+  
+      // Prepare and send WhatsApp message
+      const whatsappDto = {
+        phone: `+91${firstMessage.from}`, // Ensure phone number formatting is correct
+      };
+  
+      const whatsappResponse = await this.sendWhatsappMessage(whatsappDto);
+      console.log('WhatsApp API Response:', whatsappResponse);
+      console.log('Auth Token:', authToken);
+  
+      return insertedData;
+    } catch (error) {
+      console.log('Error inserting webhook data:', error);
+      throw error;
+    } finally {
+      if (poolConnection) {
+        await poolConnection.close();
+      }
     }
   }
 

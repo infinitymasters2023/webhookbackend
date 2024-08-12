@@ -5,9 +5,9 @@ import { ConnectionPool } from 'mssql';
 import { IncomingResponse } from '../dtos/incomingtext.response.interface';
 import { IncomingTextService } from '../service/incomingtext.service';
 
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { MessagedocsDto } from '../dtos/MessagedocsDto';
-import { MessagedocssDto } from '../dtos/DocumentdocsDto';
+import { MessagedocssDto, RequestDto } from '../dtos/DocumentdocsDto';
 import { CreateMessageDto } from '../dtos/imageget.dto';
 
 
@@ -81,5 +81,10 @@ export class IncomingtextController {
   @Post('/imageurl')
   async createMessage(@Body() createMessageDto: CreateMessageDto ): Promise<any> {
     return this.whatsappWebhookService.handleIncomingImageMessage(createMessageDto);
+  }
+  @Post('/video')
+  @ApiBody({ type: RequestDto })
+  async handleMessages(@Body() requestDto: RequestDto) {
+    return this.whatsappWebhookService.processMessage(requestDto);
   }
 }
