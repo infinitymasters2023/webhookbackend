@@ -8,6 +8,7 @@ import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { MessagedocsDto } from '../dtos/MessagedocsDto';
 import { MessagedocssDto, RequestDto } from '../dtos/DocumentdocsDto';
 import { CreateMessageDto } from '../dtos/imageget.dto';
+import { SendMessageDto } from '../dtos/newimagesdtos';
 
 @Controller('incoming')
 export class IncomingtextController {
@@ -79,10 +80,20 @@ export class IncomingtextController {
     return result;
   }
 
-  @Post('/imageurl')
+  @Post('/Image')
   async createMessage(@Body() createMessageDto: CreateMessageDto): Promise<any> {
     console.log('Received image URL payload:', createMessageDto);
-    const result = await this.whatsappWebhookService.handleIncomingImageMessage(createMessageDto);
+
+    // Assuming createMessageDto contains `clientCallback` and `messages` field
+    const clientCallback = 'YOUR_CLIENT_CALLBACK_URL'; // Update with actual client callback URL if static
+    const sendMessageDto: SendMessageDto = {
+      apiKey: createMessageDto.apiKey,
+      messages: createMessageDto.messages,
+      brand_msisdn: createMessageDto.brand_msisdn,
+      request_id: createMessageDto.request_id,
+    };
+
+    const result = await this.whatsappWebhookService.handleIncomingImageMessage(clientCallback, sendMessageDto);
     console.log('Image URL processed with result:', result);
     return result;
   }
@@ -95,4 +106,6 @@ export class IncomingtextController {
     console.log('Video message processed with result:', result);
     return result;
   }
+
+  
 }

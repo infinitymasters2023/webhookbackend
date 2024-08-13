@@ -8,6 +8,8 @@ import { MessagedocsDto } from '../dtos/MessagedocsDto';
 import { MessagedocssDto, RequestDto, VoiceDto } from '../dtos/DocumentdocsDto';
 import { CreateMessageDto } from '../dtos/imageget.dto';
 
+import { SendMessageDto } from '../dtos/newimagesdtos';
+
 //import { MessageallDto } from '../dtos/DocumentdocsDto';
 
 
@@ -176,57 +178,122 @@ export class IncomingTextService {
       }
     }
   }
+ // Create a method to wrap the image processing
 
+ async handleIncomingImageMessage(clientCallback: string, sendMessageDto: SendMessageDto): Promise<any> {
+  console.log('Received message:', sendMessageDto);
+  let poolConnection;
+  try {
+    // Establish connection to the database
+    poolConnection = await this.pool.connect();
+    const request = new Request(poolConnection);
 
-  async handleIncomingImageMessage(createMessageDto: CreateMessageDto): Promise<any> {
-    // Simulate saving or processing the data
-    console.log('Received message:', createMessageDto);
-    let poolConnection;
-    try {
-      poolConnection = await this.pool.connect();
-      const request = new Request(poolConnection);
+    // Extract values from DTO and set parameters for the stored procedure
+    const message = sendMessageDto.messages[0]; // Assuming the messages array has at least one item
+    const image = message?.image;
 
-      // Use appropriate fields from the DTO
-      request.input('Type', 3);
-      request.input('id', uuidv4());
-      request.input('api_key', createMessageDto.apiKey);
-      request.input('from_msisdn', createMessageDto.messages[0]?.from); // Adjust if needed
-      request.input('message_id', createMessageDto.messages[0]?.id); // Assuming messages array has at least one item
-      request.input('file_path', createMessageDto.messages[0]?.image?.file); // Adjust as necessary
-      request.input('image_id', createMessageDto.messages[0]?.image?.id); // Adjust as necessary
-      request.input('mime_type', createMessageDto.messages[0]?.image?.mime_type); // Adjust as necessary
-      request.input('sha256', createMessageDto.messages[0]?.image?.sha256); // Adjust as necessary
-      request.input('caption', createMessageDto.messages[0]?.image?.caption); // Adjust as necessary
-      request.input('media_url', createMessageDto.messages[0]?.image?.media_url); // Adjust as necessary
-     // request.input('timestamp', createMessageDto.messages[0]?.timestamp); // Adjust as necessary
-      request.input('message_type', createMessageDto.messages[0]?.type); // Adjust as necessary
-      request.input('brand_msisdn', createMessageDto.brand_msisdn);
-      request.input('request_id', createMessageDto.request_id);
+    request.input('Type', 3);
+    request.input('id', uuidv4());
+    request.input('api_key', sendMessageDto.apiKey);
+    request.input('from_msisdn', message?.from);
+    request.input('message_id', message?.id);
+    request.input('file_path', image?.file);
+    request.input('image_id', image?.id);
+    request.input('mime_type', image?.mime_type);
+    request.input('sha256', image?.sha256);
+    request.input('caption', image?.caption);
+    request.input('media_url', image?.media_url);
+    request.input('message_type', message?.type);
+    request.input('brand_msisdn', sendMessageDto.brand_msisdn);
+    request.input('request_id', sendMessageDto.request_id);
 
-      const result = await request.execute('InsertWebhookData');
-      const insertedData = result.recordset && result.recordset.length > 0 ? result.recordset[0] : null;
+    // Execute the stored procedure
+    const result = await request.execute('InsertWebhookData');
+    const insertedData = result.recordset && result.recordset.length > 0 ? result.recordset[0] : null;
 
-      // Get the auth token
-      const authToken = await this.getAuthToken();
+    // Get the auth token
+    const authToken = await this.getAuthToken();
 
-      // Prepare and send WhatsApp message
-      const whatsappDto: WhatsappDto = {
-        phone: `+91${createMessageDto.messages[0]?.from}`, // Adjust as necessary
-      };
+    // Prepare and send WhatsApp message
+    const whatsappDto = {
+      phone: `+91${message?.from}`, // Adjust as necessary
+    };
 
-      const whatsappResponse = await this.sendWhatsappMessage(whatsappDto);
-      console.log('WhatsApp API Response:', whatsappResponse);
-      console.log('Auth Token:', authToken);
-      return insertedData;
-    } catch (error) {
-      console.log('Error inserting webhook data:', error);
-      throw error;
-    } finally {
-      if (poolConnection) {
-        await poolConnection.close();
-      }
+    // Log WhatsApp DTO and Auth Token
+    console.log('Prepared WhatsApp DTO:', whatsappDto);
+    console.log('Auth Token:', authToken);
+
+    // Send WhatsApp message
+    const whatsappResponse = await this.sendWhatsappMessage(whatsappDto);
+    console.log('WhatsApp API Response:', whatsappResponse);
+
+    return insertedData;
+  } catch (error) {
+    console.error('Error inserting webhook data:', error);
+    throw error;
+  } finally {
+    if (poolConnection) {
+      await poolConnection.close();
     }
   }
+}
+
+  
+  
+
+  // async handleIncomingImageMessage(createMessageDto: CreateMessageDto): Promise<any> {
+  //   //this.logger.log('Received message:', createMessageDto);
+  //   let poolConnection;
+  //   try {
+  //     // Establish connection to the database
+  //     poolConnection = await this.pool.connect();
+  //     const request = new Request(poolConnection);
+
+  //     // Map DTO fields to stored procedure parameters
+  //     request.input('Type', 3);
+  //     request.input('id', uuidv4());
+  //     request.input('api_key', createMessageDto.apiKey);
+  //     request.input('from_msisdn', createMessageDto.messages[0]?.from);
+  //     request.input('message_id', createMessageDto.messages[0]?.id);
+  //     request.input('file_path', createMessageDto.messages[0]?.image?.file);
+  //     request.input('image_id', createMessageDto.messages[0]?.image?.id);
+  //     request.input('mime_type', createMessageDto.messages[0]?.image?.mime_type);
+  //     request.input('sha256', createMessageDto.messages[0]?.image?.sha256);
+  //     request.input('caption', createMessageDto.messages[0]?.image?.caption);
+  //     request.input('media_url', createMessageDto.messages[0]?.image?.media_url);
+  //     request.input('message_type', createMessageDto.messages[0]?.type);
+  //     request.input('brand_msisdn', createMessageDto.brand_msisdn);
+  //     request.input('request_id', createMessageDto.request_id);
+
+  //     // Execute the stored procedure
+  //     const result = await request.execute('InsertWebhookData');
+  //     const insertedData = result.recordset && result.recordset.length > 0 ? result.recordset[0] : null;
+
+  //   //  Obtain the auth token (you would implement the getAuthToken method)
+  //    const authToken = await this.getAuthToken();
+
+  //  //   Prepare the WhatsApp message payload
+  //     const whatsappDto: WhatsappDto = {
+  //       phone: `+91${createMessageDto.messages[0]?.from}`, // Adjust as necessary
+  //     };
+  //       console.log('')
+  //  //   Send the WhatsApp message (you would implement the sendWhatsappMessage method)
+  //    const whatsappResponse = await this.sendWhatsappMessage(whatsappDto);
+      
+  //  //   Log the responses for debugging
+     
+      
+  //     return insertedData;
+  //   } catch (error) {
+   
+  //     throw error;
+  //   } finally {
+  //     // Ensure the connection is closed after the operation
+  //     if (poolConnection) {
+  //       await poolConnection.close();
+  //     }
+  //   }
+  // }
 
   
   private readonly whatsappApiUrl = 'https://apis.rmlconnect.net/wba/v1/messages';
