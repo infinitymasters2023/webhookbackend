@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 // USE [iapl]
 // GO
 // /****** Object:  StoredProcedure [dbo].[InsertWebhookData]    Script Date: 8/13/2024 4:41:12 PM ******/
