@@ -82,9 +82,10 @@ export class IncomingtextController {
 
   @Post('/Image')
   async createMessage(@Body() createMessageDto: CreateMessageDto): Promise<any> {
-    console.log('Received image URL payload:', createMessageDto);
+    // Log the received payload
+    console.log('Received image URL payload:', JSON.stringify(createMessageDto, null, 2));
 
-    // Assuming createMessageDto contains `clientCallback` and `messages` field
+    // Extract clientCallback and prepare sendMessageDto
     const clientCallback = 'YOUR_CLIENT_CALLBACK_URL'; // Update with actual client callback URL if static
     const sendMessageDto: SendMessageDto = {
       apiKey: createMessageDto.apiKey,
@@ -93,11 +94,17 @@ export class IncomingtextController {
       request_id: createMessageDto.request_id,
     };
 
+    // Log the clientCallback and sendMessageDto
+    console.log('Client Callback URL:', clientCallback);
+    console.log('SendMessageDto:', JSON.stringify(sendMessageDto, null, 2));
+
+    // Call the service method and log the result
     const result = await this.whatsappWebhookService.handleIncomingImageMessage(clientCallback, sendMessageDto);
-    console.log('Image URL processed with result:', result);
+    console.log('Image URL processed with result:', JSON.stringify(result, null, 2));
+
     return result;
   }
-
+  
   @Post('/video')
   @ApiBody({ type: RequestDto })
   async handleMessages(@Body() requestDto: RequestDto): Promise<any> {

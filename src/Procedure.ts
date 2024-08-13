@@ -1,17 +1,6 @@
-/* eslint-disable prettier/prettier */
-// /* eslint-disable prettier/prettier */
-
-
-
-
-
-
-
-
-
 // USE [iapl]
 // GO
-// /****** Object:  StoredProcedure [dbo].[InsertWebhookData]    Script Date: 8/12/2024 9:41:49 AM ******/
+// /****** Object:  StoredProcedure [dbo].[InsertWebhookData]    Script Date: 8/13/2024 4:41:12 PM ******/
 // SET ANSI_NULLS ON
 // GO
 // SET QUOTED_IDENTIFIER ON
@@ -38,7 +27,6 @@
 //      @sha256 CHAR(64) = NULL,
 //      @media_url NVARCHAR(MAX) = NULL,
 //     @from_msisdn VARCHAR(20)=Null,
-//  	 @api_Key NVARCHAR(255) = NULL,
 // 	@type_voice NVARCHAR(50)=Null,
 //     @message_type VARCHAR(20)=Null,
 //     @file_path VARCHAR(255)=null,
@@ -71,12 +59,12 @@
 // 	 IF (@type ='3')
 // 	 BEGIN
 // 		INSERT INTO webhookimages (
-//     api_key, 
-//     from_msisdn, 
+//     apikey, 
+//     [from], 
 //     timestamp, 
-//     message_id, 
-//     message_type, 
-//     file_path, 
+//     id, 
+//     [type], 
+//     [file], 
 //     image_id, 
 //     mime_type, 
 //     sha256, 
@@ -87,14 +75,14 @@
 //     created_at
 // )
 // VALUES (
-//     @api_Key, 
-//     @from_msisdn, 
+//     @apiKey, 
+//     @from, 
 //     @timestamp, 
-//     @message_id, 
+//     @id, 
 //     @message_type, 
-//     @file_path, 
+//     @file, 
 //     @image_id, 
-//     @mime_type, 
+//     @type, 
 //     @sha256, 
 //     @caption, 
 //     @media_url, 
@@ -133,10 +121,4 @@
 //     );
 //  END;
 //  END
-      
-
-
-
-
-
-
+ 

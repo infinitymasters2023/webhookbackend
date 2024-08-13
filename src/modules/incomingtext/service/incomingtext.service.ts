@@ -193,17 +193,17 @@ export class IncomingTextService {
     const image = message?.image;
 
     request.input('Type', 3);
-    request.input('id', uuidv4());
-    request.input('api_key', sendMessageDto.apiKey);
-    request.input('from_msisdn', message?.from);
-    request.input('message_id', message?.id);
-    request.input('file_path', image?.file);
+   // request.input('id', uuidv4());
+    request.input('apikey', sendMessageDto.apiKey);
+    request.input('from', message?.from);
+    request.input('id', message?.id);
+    request.input('file', image?.file);
     request.input('image_id', image?.id);
-    request.input('mime_type', image?.mime_type);
+ //   request.input('mime_type', image?.mime_type);
     request.input('sha256', image?.sha256);
     request.input('caption', image?.caption);
     request.input('media_url', image?.media_url);
-    request.input('message_type', message?.type);
+   // request.input('type', message?.type);
     request.input('brand_msisdn', sendMessageDto.brand_msisdn);
     request.input('request_id', sendMessageDto.request_id);
 
