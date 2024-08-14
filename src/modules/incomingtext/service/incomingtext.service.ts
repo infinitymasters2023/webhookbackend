@@ -5,8 +5,8 @@ import {  MessageDto,   WhatsappDto } from '../dtos/incomingtext-payload.dto';
 import { v4 as uuidv4 } from 'uuid';
 import axios from 'axios';
 import { MessagedocsDto } from '../dtos/MessagedocsDto';
-import { MessagedocssDto, RequestDto, VoiceDto } from '../dtos/DocumentdocsDto';
-import { CreateMessageDto } from '../dtos/imageget.dto';
+import {  RequestDto, VoiceDto } from '../dtos/DocumentdocsDto';
+
 
 import { SendMessageDto } from '../dtos/newimagesdtos';
 
@@ -23,27 +23,7 @@ export class IncomingTextService {
     @Inject('DATABASE_CONNECTION') private readonly pool: ConnectionPool,
   ) {}
 
-  public async processIncomingMessage(message: MessagedocssDto): Promise<any> {
-    switch (message.type) {
-      case 'text':
-        return this.handleWebhook(message as MessageDto);
-  
-      default:
-        throw new Error(`Unsupported message type: ${message.type}`);
-    }
-  }
-
-  
-
-  private isMessageDto(dto: any): dto is MessageDto {
-    return dto.from !== undefined && dto.type === 'text';
-  }
-  
-  // Type guard for MessagedocsDto
-  private isDocumentDto(dto: any): dto is MessagedocsDto {
-    return dto.from !== undefined && dto.type === 'document';
-  }
-
+ 
 
   public async getAuthToken(): Promise<string> {
     try {
@@ -180,9 +160,10 @@ export class IncomingTextService {
   }
  // Create a method to wrap the image processing
 
- async handleIncomingImageMessage(clientCallback: string, sendMessageDto: SendMessageDto): Promise<any> {
+ async handleIncomingImageMessage(sendMessageDto: SendMessageDto): Promise<any> {
   console.log('Received message:', sendMessageDto);
   let poolConnection;
+  
   try {
     // Establish connection to the database
     poolConnection = await this.pool.connect();
@@ -193,31 +174,38 @@ export class IncomingTextService {
     const image = message?.image;
 
     request.input('Type', 3);
-   // request.input('id', uuidv4());
+    // request.input('id', uuidv4()); // Uncomment if you need to generate a UUID
     request.input('apikey', sendMessageDto.apiKey);
     request.input('from', message?.from);
     request.input('id', message?.id);
     request.input('file', image?.file);
     request.input('image_id', image?.id);
- //   request.input('mime_type', image?.mime_type);
+    // request.input('mime_type', image?.mime_type); // Uncomment if required
     request.input('sha256', image?.sha256);
     request.input('caption', image?.caption);
     request.input('media_url', image?.media_url);
-   // request.input('type', message?.type);
+    // request.input('type', message?.type); // Uncomment if required
     request.input('brand_msisdn', sendMessageDto.brand_msisdn);
     request.input('request_id', sendMessageDto.request_id);
 
     // Execute the stored procedure
     const result = await request.execute('InsertWebhookData');
+    
+    // Extract inserted data
     const insertedData = result.recordset && result.recordset.length > 0 ? result.recordset[0] : null;
 
     // Get the auth token
     const authToken = await this.getAuthToken();
 
     // Prepare and send WhatsApp message
-    const whatsappDto = {
-      phone: `+91${message?.from}`, // Adjust as necessary
-    };
+    const phoneNumber = message?.from.startsWith('91')
+  ? message.from.substring(2) // Remove the first 3 characters if '+91' is present
+  : message?.from;
+
+const whatsappDto = {
+  phone: `+91${phoneNumber}`, // Add '+91' prefix again
+};
+
 
     // Log WhatsApp DTO and Auth Token
     console.log('Prepared WhatsApp DTO:', whatsappDto);
@@ -227,7 +215,9 @@ export class IncomingTextService {
     const whatsappResponse = await this.sendWhatsappMessage(whatsappDto);
     console.log('WhatsApp API Response:', whatsappResponse);
 
+    // Return the inserted data
     return insertedData;
+    
   } catch (error) {
     console.error('Error inserting webhook data:', error);
     throw error;
@@ -237,6 +227,7 @@ export class IncomingTextService {
     }
   }
 }
+
 
   
   
@@ -301,13 +292,6 @@ export class IncomingTextService {
  
 
 
-    async handleIncomingMessage(createMessageDto: CreateMessageDto ): Promise<any> {
-      // Simulate saving or processing the data
-      console.log('Received message:', createMessageDto);
-  
-      // Here you could implement your logic, such as calling another service, saving to a database, etc.
-      return { success: true, data: createMessageDto };
-    }
   
 
 
@@ -395,9 +379,14 @@ export class IncomingTextService {
       const authToken = await this.getAuthToken();
   
       // Prepare and send WhatsApp message
-      const whatsappDto = {
-        phone: `+91${firstMessage.from}`, // Ensure phone number formatting is correct
-      };
+      const phoneNumber = firstMessage.from.startsWith('91')
+      ? firstMessage.from.substring(2) // Remove the first 3 characters if '+91' is present
+      : firstMessage.from;
+    
+    const whatsappDto = {
+      phone: `+91${phoneNumber}`, // Add '+91' prefix again
+    };
+    
   
       const whatsappResponse = await this.sendWhatsappMessage(whatsappDto);
       console.log('WhatsApp API Response:', whatsappResponse);

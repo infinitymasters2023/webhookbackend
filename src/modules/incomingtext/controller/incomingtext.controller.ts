@@ -1,13 +1,12 @@
 /* eslint-disable prettier/prettier */
-import { Controller, Inject, Post, Body, Get } from '@nestjs/common';
+import { Controller, Inject, Post, Body, Get, HttpStatus } from '@nestjs/common';
 import { WebhookPayloadDto } from '../dtos/incomingtext-payload.dto';
 import { ConnectionPool } from 'mssql';
 import { IncomingResponse } from '../dtos/incomingtext.response.interface';
 import { IncomingTextService } from '../service/incomingtext.service';
 import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { MessagedocsDto } from '../dtos/MessagedocsDto';
-import { MessagedocssDto, RequestDto } from '../dtos/DocumentdocsDto';
-import { CreateMessageDto } from '../dtos/imageget.dto';
+import { RequestDto } from '../dtos/DocumentdocsDto';
 import { SendMessageDto } from '../dtos/newimagesdtos';
 
 @Controller('incoming')
@@ -57,12 +56,7 @@ export class IncomingtextController {
   @ApiResponse({ status: 201, description: 'Message sent successfully' })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
-  // async sendMessage(@Body() payload: any): Promise<any> {
-  //   console.log('Send message endpoint called with payload:', payload);
-  //   const result = await this.whatsappWebhookService.sendMessage(payload);
-  //   console.log('Send message result:', result);
-  //   return result;
-  // }
+
 
   @Post('documents')
   async handleDocumentsWebhook(@Body() messageDto: MessagedocsDto): Promise<any> {
@@ -72,39 +66,41 @@ export class IncomingtextController {
     return result;
   }
 
-  @Post('incoming')
-  async handleIncomingMessage(@Body() messageDto: MessagedocssDto): Promise<any> {
-    console.log('Received incoming message payload:', messageDto);
-    const result = await this.whatsappWebhookService.processIncomingMessage(messageDto);
-    console.log('Incoming message processed with result:', result);
-    return result;
-  }
+ 
 
   @Post('/Image')
-  async createMessage(@Body() createMessageDto: CreateMessageDto): Promise<any> {
-    // Log the received payload
-    console.log('Received image URL payload:', JSON.stringify(createMessageDto, null, 2));
-
-    // Extract clientCallback and prepare sendMessageDto
-    const clientCallback = 'YOUR_CLIENT_CALLBACK_URL'; // Update with actual client callback URL if static
-    const sendMessageDto: SendMessageDto = {
-      apiKey: createMessageDto.apiKey,
-      messages: createMessageDto.messages,
-      brand_msisdn: createMessageDto.brand_msisdn,
-      request_id: createMessageDto.request_id,
-    };
-
-    // Log the clientCallback and sendMessageDto
-    console.log('Client Callback URL:', clientCallback);
+  async createMessage(@Body() sendMessageDto: SendMessageDto): Promise<any> {
     console.log('SendMessageDto:', JSON.stringify(sendMessageDto, null, 2));
-
-    // Call the service method and log the result
-    const result = await this.whatsappWebhookService.handleIncomingImageMessage(clientCallback, sendMessageDto);
+  
+    // Handle the incoming image message and get the result
+    const result = await this.whatsappWebhookService.handleIncomingImageMessage(sendMessageDto);
     console.log('Image URL processed with result:', JSON.stringify(result, null, 2));
-
-    return result;
+  
+    // Extract 'from' and 'image' from the first message in the DTO
+    if (sendMessageDto.messages && sendMessageDto.messages.length > 0) {
+      const { from, image } = sendMessageDto.messages[0];
+  
+      // Return success message with 'from', 'image', and the processed result
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Image message processed successfully',
+        data: {
+          from,
+          image,
+          result
+        }
+      };
+    } else {
+      // Handle the case where no messages are present in the DTO
+      return {
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'No messages found in the payload',
+      };
+    }
   }
   
+
+
   @Post('/video')
   @ApiBody({ type: RequestDto })
   async handleMessages(@Body() requestDto: RequestDto): Promise<any> {
