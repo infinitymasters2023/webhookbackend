@@ -169,8 +169,7 @@ export class IncomingTextService {
     poolConnection = await this.pool.connect();
     const request = new Request(poolConnection);
 
-    // Extract values from DTO and set parameters for the stored procedure
-    const message = sendMessageDto.messages[0]; // Assuming the messages array has at least one item
+    const message = sendMessageDto.messages[0]; 
     const image = message?.image;
 
     request.input('Type', 3);
@@ -191,13 +190,12 @@ export class IncomingTextService {
     // Execute the stored procedure
     const result = await request.execute('InsertWebhookData');
     
-    // Extract inserted data
+  
     const insertedData = result.recordset && result.recordset.length > 0 ? result.recordset[0] : null;
 
-    // Get the auth token
     const authToken = await this.getAuthToken();
 
-    // Prepare and send WhatsApp message
+  
     const phoneNumber = message?.from.startsWith('91')
   ? message.from.substring(2) // Remove the first 3 characters if '+91' is present
   : message?.from;
