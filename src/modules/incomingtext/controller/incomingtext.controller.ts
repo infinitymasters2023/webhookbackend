@@ -7,7 +7,7 @@ import { IncomingTextService } from '../service/incomingtext.service';
 import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { MessagedocsDto } from '../dtos/MessagedocsDto';
 import { RequestDto } from '../dtos/DocumentdocsDto';
-import { SendMessageDto } from '../dtos/newimagesdtos';
+import { SendMessageDto, SendMessageDtoo, SendMessageDtoooo } from '../dtos/newimagesdtos';
 
 @Controller('incoming')
 export class IncomingtextController {
@@ -99,7 +99,10 @@ export class IncomingtextController {
     }
   }
   
-
+  @Post('/senddd')
+  async sendMessage(@Body() whatsappDto: SendMessageDtoo): Promise<any> {
+    return this.whatsappWebhookService.sendMessage(whatsappDto);
+  }
 
   @Post('/video')
   @ApiBody({ type: RequestDto })
@@ -109,6 +112,10 @@ export class IncomingtextController {
     console.log('Video message processed with result:', result);
     return result;
   }
-
+  @Post('/customsend')
+  async sendMessagess(@Body() sendMessageDto: SendMessageDtoooo): Promise<any> {
+    console.log('Received message:', sendMessageDto);
+    return this.whatsappWebhookService.handlesendmessage(sendMessageDto);
+  }
   
 }

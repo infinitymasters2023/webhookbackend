@@ -70,3 +70,39 @@ export class SendMessageDto {
   @ApiProperty()
   request_id: string;
 }
+export class SendMessageDtoo {
+
+@ApiProperty()
+  phone: string;
+
+
+  extra: string;
+
+
+  @ApiProperty()
+  templateName: string;
+
+
+  @ApiProperty()
+  langCode: string;
+
+
+  @ApiProperty()
+  bodyVariables: string[];
+
+
+  @ApiProperty()
+  buttonUrl: string;
+
+
+  enableAcculync: boolean;
+}
+
+export class SendMessageDtoooo {
+ 
+  @ApiProperty()
+  text: string;  
+  @ApiProperty()
+  phone:string   // Add this field
+ ;
+}

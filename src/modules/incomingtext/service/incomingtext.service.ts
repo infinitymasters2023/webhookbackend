@@ -8,7 +8,7 @@ import { MessagedocsDto } from '../dtos/MessagedocsDto';
 import {  RequestDto, VoiceDto } from '../dtos/DocumentdocsDto';
 
 
-import { SendMessageDto } from '../dtos/newimagesdtos';
+import { SendMessageDto, SendMessageDtoo, SendMessageDtoooo } from '../dtos/newimagesdtos';
 
 //import { MessageallDto } from '../dtos/DocumentdocsDto';
 
@@ -226,7 +226,54 @@ const whatsappDto = {
   }
 }
 
+async handlesendmessage(sendMessageDto: SendMessageDtoooo): Promise<any> {
+  console.log('Received message:', sendMessageDto);
+  let poolConnection;
 
+  try {
+    // Establish connection to the database
+    poolConnection = await this.pool.connect();
+    //const request = new Request(poolConnection);
+
+    // Removed other inputs and kept only necessary logic
+
+   // const message = sendMessageDto.phone;
+    const phoneNumber = sendMessageDto.phone
+     
+    console.log('phoneNumber checking',phoneNumber)
+    const whatsappDto = {
+      phone: `+91${phoneNumber}`,
+      text: sendMessageDto.text,
+      enable_acculync: true,
+     // extra: sendMessageDto.extra,
+    };
+
+    console.log('Prepared WhatsApp DTO:', whatsappDto);
+
+    // Get the authorization token
+    const authToken = await this.getAuthToken();
+
+    // Send WhatsApp message via API
+    const whatsappResponse = await axios.post('https://apis.rmlconnect.net/wba/v1/messages', whatsappDto, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': authToken,
+      }
+    });
+
+    console.log('WhatsApp API Response:', whatsappResponse.data);
+
+    return whatsappResponse.data;
+
+  } catch (error) {
+    console.error('Error sending WhatsApp message:', error);
+    throw error;
+  } finally {
+    if (poolConnection) {
+      await poolConnection.close();
+    }
+  }
+}
   
   
 
@@ -326,7 +373,53 @@ const whatsappDto = {
       );
     }
   }
+  /************************************************************************************ */
+  private readonly apiUrl = 'https://apis.rmlconnect.net/wba/v1/messages';
+  public async sendMessage(whatsappDto: SendMessageDtoo): Promise<any> {
+    try {
+      const authToken = await this.getAuthToken();
 
+      console.log('Sending payload:', JSON.stringify(whatsappDto));
+      console.log('Using Auth Token:', authToken);
+
+      const payload = {
+        phone: whatsappDto.phone,
+        // extra: whatsappDto.extra || '',
+        // enable_acculync: true,
+        media: {
+          type: 'media_template',
+          // template_name: whatsappDto.template_name || 'welcome',
+          // lang_code: whatsappDto.lang_code || 'en',
+          body: [
+            { text: 'Welcome!' }, // Add your dynamic text variables here
+          ],
+          button: [
+            {
+              button_no: '0/1',
+              // url: whatsappDto.dynamic_url || 'https://your-default-url.com',
+            },
+          ],
+        },
+      };
+
+      const response = await axios.post(this.whatsappApiUrl, payload, {
+        headers: {
+          Authorization: `${authToken}`,
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error('Error sending message:', error);
+      throw new HttpException(
+        error.response?.data || 'An error occurred while sending the message',
+        error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+  /******************************************************************************** */
   public async processMessage(requestDto: RequestDto) {
     // Implement your processing logic here
     console.log('Processing request:', requestDto);
