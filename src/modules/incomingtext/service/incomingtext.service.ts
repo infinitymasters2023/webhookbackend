@@ -111,7 +111,7 @@ async handleallRequest(requestDto: CommonDTO): Promise<any> {
       request.input('Type', messageDto.type);
       request.input('BrandMsisdn', requestDto.brand_msisdn);
       request.input('RequestId', requestDto.request_id);
-
+      console.log('1')
       // Handle specific message types
       switch (messageDto.type) {
         case 'voice':
@@ -122,13 +122,15 @@ async handleallRequest(requestDto: CommonDTO): Promise<any> {
             request.input('VoiceMimeType', voice.mime_type);
             request.input('VoiceSha256', voice.sha256);
             request.input('VoiceMediaUrl', voice.media_url);
+            console.log('2')
           }
           break;
-
+       
         case 'text':
           const text = messageDto.text;
           if (text) {
             request.input('TextBody', text.body);
+            console.log('3')
           }
           break;
 
@@ -141,6 +143,8 @@ async handleallRequest(requestDto: CommonDTO): Promise<any> {
             request.input('ImageSha256', image.sha256);
             request.input('ImageMediaUrl', image.media_url);
             request.input('ImageCaption', image.caption);
+            console.log('4')
+
           }
           break;
 
@@ -153,25 +157,26 @@ async handleallRequest(requestDto: CommonDTO): Promise<any> {
             request.input('DocumentSha256', document.sha256);
             request.input('DocumentMediaUrl', document.media_url);
             request.input('DocumentCaption', document.caption);
+            console.log('5')
           }
           break;
       }
-
+      if (requestDto.contacts) {
+        for (const contactDto of requestDto.contacts) {
+          request.input('ContactProfileName', contactDto.profile.name);
+          request.input('ContactWaId', contactDto.wa_id);
+          console.log('6')
+          // Execute SQL command to insert/update contact details
+         // await request.execute('sp_InserAlltMessageDetails'); // Stored procedure name or SQL command
+        }
+      }
+  
       // Execute SQL command to insert/update message details
       await request.execute('sp_InserAlltMessageDetails'); // Stored procedure name or SQL command
     }
 
     // Process each contact if available
-    if (requestDto.contacts) {
-      for (const contactDto of requestDto.contacts) {
-        request.input('ContactProfileName', contactDto.profile.name);
-        request.input('ContactWaId', contactDto.wa_id);
-
-        // Execute SQL command to insert/update contact details
-        await request.execute('sp_InserAlltMessageDetails'); // Stored procedure name or SQL command
-      }
-    }
-
+  
     return { success: true };
   } catch (error) {
     console.error('Error handling request:', error);
