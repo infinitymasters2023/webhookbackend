@@ -20,8 +20,10 @@ export class Media {
   @ApiPropertyOptional({ description: 'Optional caption for the media' })
   caption?: string;
 }
+export class audio extends Media {}
 
 export class Voice extends Media {}
+export class video extends Media {}
 
 export class Image extends Media {}
 
@@ -45,11 +47,17 @@ export class Message {
   @ApiProperty({ description: 'Timestamp of the message' })
   timestamp: string;
 
-  @ApiProperty({ enum: ['voice', 'text', 'image', 'document'], description: 'Type of the message' })
-  type: 'voice' | 'text' | 'image' | 'document';
+  @ApiProperty({ enum: ['voice','video', 'audio', 'text', 'image', 'document'], description: 'Type of the message' })
+  type: 'voice' | 'audio' |  'video' | 'text' | 'image' | 'document';
 
   @ApiPropertyOptional({ type: Voice, description: 'Voice message details' })
   voice?: Voice;
+  @ApiPropertyOptional({ type: audio, description: 'audio message details' })
+  audio?: audio;
+
+  @ApiPropertyOptional({ type: video, description: 'video message details' })
+  video?: video;
+
 
   @ApiPropertyOptional({ type: TextMessage, description: 'Text message details' })
   text?: TextMessage;

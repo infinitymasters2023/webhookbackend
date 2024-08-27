@@ -52,6 +52,7 @@ export class IncomingtextController {
   @ApiResponse({ status: 400, description: 'Invalid request data.' })
   @ApiResponse({ status: 500, description: 'Internal server error.' })
   async handleallRequest(@Body() requestDto: CommonDTO): Promise<any> {
+    console.log('Received message payload:', JSON.stringify(requestDto, null, 2));
     try {
       const result = await this.whatsappWebhookService.handleallRequest(requestDto);
       return { message: 'Request successfully processed.', result };
@@ -62,4 +63,13 @@ export class IncomingtextController {
       );
     }
   }
+
+
+  @Post('smartping')
+  async smartpingsendMessagess(@Body() sendMessageDto: SendMessageDtoooo): Promise<any> {
+      // Log the received message
+      console.log('Received message:', sendMessageDto);
+  
+  }
+  
 }

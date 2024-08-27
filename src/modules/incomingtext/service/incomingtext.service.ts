@@ -105,78 +105,91 @@ async handleallRequest(requestDto: CommonDTO): Promise<any> {
     // Process each message
     for (const messageDto of requestDto.messages) {
       // Set SQL parameters based on message type
-      request.input('Id', messageDto.id);
-      request.input('FromPhoneNumber', messageDto.from);
+      request.input('type', 1);
+      request.input('ID', messageDto.id);
+      request.input('FromNumber', messageDto.from);
       request.input('Timestamp', messageDto.timestamp);
-      request.input('Type', messageDto.type);
+      request.input('MessageType', messageDto.type);
       request.input('BrandMsisdn', requestDto.brand_msisdn);
-      request.input('RequestId', requestDto.request_id);
-      console.log('1')
+      request.input('RequestID', requestDto.request_id); // Fixed parameter name
+
       // Handle specific message types
       switch (messageDto.type) {
         case 'voice':
           const voice = messageDto.voice;
           if (voice) {
-            request.input('VoiceFile', voice.file);
-            request.input('VoiceId', voice.id);
-            request.input('VoiceMimeType', voice.mime_type);
-            request.input('VoiceSha256', voice.sha256);
-            request.input('VoiceMediaUrl', voice.media_url);
-            console.log('2')
+            request.input('WFile', voice.file);
+            request.input('Wid', voice.id);
+            request.input('MimeType', voice.mime_type);
+            request.input('Sha256', voice.sha256);
+            request.input('MediaUrl', voice.media_url);
           }
           break;
-       
+          case 'audio':
+            const audio = messageDto.audio;
+            if (audio) {
+              request.input('WFile', audio.file);
+              request.input('Wid', audio.id);
+              request.input('MimeType', audio.mime_type);
+              request.input('Sha256', audio.sha256);
+              request.input('MediaUrl', audio.media_url);
+            }
+            break;
+          case 'video':
+            const video = messageDto.video;
+            if (video) {
+              request.input('WFile', video.file);
+              request.input('Wid', video.id);
+              request.input('MimeType', video.mime_type);
+              request.input('Sha256', video.sha256);
+              request.input('MediaUrl', video.media_url);
+            }
+            break;
+
+
         case 'text':
           const text = messageDto.text;
           if (text) {
-            request.input('TextBody', text.body);
-            console.log('3')
+            request.input('Body', text.body);
           }
           break;
 
         case 'image':
           const image = messageDto.image;
           if (image) {
-            request.input('ImageFile', image.file);
-            request.input('ImageId', image.id);
-            request.input('ImageMimeType', image.mime_type);
-            request.input('ImageSha256', image.sha256);
-            request.input('ImageMediaUrl', image.media_url);
-            request.input('ImageCaption', image.caption);
-            console.log('4')
-
+            request.input('WFile', image.file);
+            request.input('Wid', image.id);
+            request.input('MimeType', image.mime_type);
+            request.input('Sha256', image.sha256);
+            request.input('MediaUrl', image.media_url);
+            request.input('Caption', image.caption);
           }
           break;
 
         case 'document':
           const document = messageDto.document;
           if (document) {
-            request.input('DocumentFile', document.file);
-            request.input('DocumentId', document.id);
-            request.input('DocumentMimeType', document.mime_type);
-            request.input('DocumentSha256', document.sha256);
-            request.input('DocumentMediaUrl', document.media_url);
-            request.input('DocumentCaption', document.caption);
-            console.log('5')
+            request.input('WFile', document.file);
+            request.input('Wid', document.id);
+            request.input('MimeType', document.mime_type);
+            request.input('Sha256', document.sha256);
+            request.input('MediaUrl', document.media_url);
+            request.input('Caption', document.caption);
           }
           break;
       }
+
       if (requestDto.contacts) {
         for (const contactDto of requestDto.contacts) {
-          request.input('ContactProfileName', contactDto.profile.name);
-          request.input('ContactWaId', contactDto.wa_id);
-          console.log('6')
-          // Execute SQL command to insert/update contact details
-         // await request.execute('sp_InserAlltMessageDetails'); // Stored procedure name or SQL command
+          request.input('ProfileName', contactDto.profile.name);
+          request.input('WaID', contactDto.wa_id);
         }
       }
-  
+
       // Execute SQL command to insert/update message details
-      await request.execute('sp_InserAlltMessageDetails'); // Stored procedure name or SQL command
+      await request.execute('sp_Iapl_crm_whatsappwebhook_resp');
     }
 
-    // Process each contact if available
-  
     return { success: true };
   } catch (error) {
     console.error('Error handling request:', error);
@@ -187,6 +200,7 @@ async handleallRequest(requestDto: CommonDTO): Promise<any> {
     }
   }
 }
+
 
 
 
