@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { Inject, Injectable } from '@nestjs/common';
 import { ConnectionPool, Request } from 'mssql';
 import { MessageDto } from './incomingtext-payload.dto';

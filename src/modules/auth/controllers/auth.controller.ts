@@ -530,7 +530,7 @@ async newcustomerdataupdate(@Body() customerDataDTO : CustomerDataDTO ): Promise
   }
 }
 
-
+      
   
  
   // @Post('/newloginwithotp')

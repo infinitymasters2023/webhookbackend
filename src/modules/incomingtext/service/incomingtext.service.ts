@@ -5,6 +5,8 @@ import {    WhatsappDto } from '../dtos/incomingtext-payload.dto';
 import axios from 'axios';
 import { SendMessageDtoo, SendMessageDtoooo } from '../dtos/newimagesdtos';
 import { CommonDTO } from '../dtos/commonall.dtos';
+import { MessageDto } from '../dtos/smartping.dtos';
+//import { Connection } from 'typeorm';
 
 
 
@@ -296,6 +298,48 @@ async handleallRequest(requestDto: CommonDTO): Promise<any> {
   }
   /******************************************************************************** */
 
+/*****************************smartping */
+public async executeInsertMessage(messageDto: MessageDto): Promise<any> {
+  let poolConnection;
+  try {
+    poolConnection = await this.pool.connect();
+    const request = new Request(poolConnection);
 
+    request.input('Id', messageDto.id);
+    request.input('Type', messageDto.type);
+    request.input('PhoneNumber', messageDto.phone_number);
+    request.input('ContactId', messageDto.contact_id);
+    request.input('Campaign', messageDto.campaign);
+    request.input('Sender', messageDto.sender);
+    request.input('MessageContent_Text', messageDto.message_content.text);
+    request.input('MessageType', messageDto.message_type);
+    request.input('Status', messageDto.status);
+    request.input('IsHSM', messageDto.is_HSM.toString());
+    request.input('ChatbotResponse', messageDto.chatbot_response);
+    request.input('AgentId', messageDto.agent_id);
+    request.input('SentAt', messageDto.sent_at.toString());
+    request.input('DeliveredAt', messageDto.delivered_at.toString());
+    request.input('ReadAt', messageDto.read_at.toString());
+    request.input('FailureResponse', messageDto.failureResponse);
+    request.input('UserName', messageDto.userName);
+    request.input('CountryCode', messageDto.countryCode);
+    request.input('SubmittedMessageId', messageDto.submitted_message_id);
+    request.input('MessagePrice', messageDto.message_price.toString());
+    request.input('DeductionType', messageDto.deductionType);
+    request.input('MauDetails', messageDto.mau_details);
+    request.input('WhatsAppConversationDetails_Id', messageDto.whatsapp_conversation_details.id);
+    request.input('WhatsAppConversationDetails_Type', messageDto.whatsapp_conversation_details.type);
+    request.input('Context', messageDto.context);
+    request.input('MessageId', messageDto.messageId);
 
+    await request.execute('smartpingInsertMessageData');
+  } catch (error) {
+    console.error('Error handling request:', error);
+    throw new Error('Failed to process request');
+  } finally {
+    if (poolConnection) {
+      poolConnection.release(); // or poolConnection.close() depending on your library
+    }
+  }
+}
 }

@@ -9,6 +9,7 @@ import {  ApiOperation, ApiResponse } from '@nestjs/swagger';
 import {  SendMessageDtoooo } from '../dtos/newimagesdtos';
 
 import { CommonDTO } from '../dtos/commonall.dtos';
+import { MessageDto } from '../dtos/smartping.dtos';
 
 @Controller('incoming')
 export class IncomingtextController {
@@ -66,8 +67,20 @@ export class IncomingtextController {
 
 
   @Post('smartping')
-  async smartpingsendMessagess(@Body() sendMessageDto: SendMessageDtoooo): Promise<any> {
+  @ApiResponse({ status: 201, description: 'Request successfully processed.' })
+  @ApiResponse({ status: 400, description: 'Invalid request data.' })
+  @ApiResponse({ status: 500, description: 'Internal server error.' })
+  async smartpingsendMessagess(@Body() sendMessageDto: MessageDto): Promise<any> {
       // Log the received message
+      try {
+        const result = await this.whatsappWebhookService.executeInsertMessage(sendMessageDto);
+        return { message: 'Request successfully processed.', result };
+      } catch (error) {
+        throw new HttpException(
+          { message: error.message || 'Failed to process request' },
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
       console.log('Received message:', sendMessageDto);
   
   }
