@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 // whatsappreq.service.ts
 import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios'; // Correct import from @nestjs/axios

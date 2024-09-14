@@ -6,6 +6,7 @@ import axios from 'axios';
 import { SendMessageDtoo, SendMessageDtoooo } from '../dtos/newimagesdtos';
 import { CommonDTO } from '../dtos/commonall.dtos';
 import { MessageDto } from '../dtos/smartping.dtos';
+import { CreateTemplateDto } from '../dtos/createtemplate.dtos';
 //import { Connection } from 'typeorm';
 
 
@@ -40,7 +41,7 @@ export class IncomingTextService {
         throw new Error('Token not found in the response');
       }
 
-      console.log('Retrieved Auth Token:', token);
+   //   console.log('Retrieved Auth Token:', token);
       return token;
     } catch (error) {
       console.error('Error getting auth token:', error);
@@ -296,9 +297,29 @@ async handleallRequest(requestDto: CommonDTO): Promise<any> {
       );
     }
   }
-  /******************************************************************************** */
+  /***************************************COUNTRY CODE********************************************************************************************************************************** */
 
-/*****************************smartping */
+  async countrycode(){
+    try {
+        const poolConnection = await this.pool.connect();
+        const request = new Request(poolConnection);
+        request.input('processtype', 2);
+        const result = await request.execute('smartpingInsertMessageData');
+        const insertedData = result.recordsets[0];
+       
+        return insertedData;
+    } catch (error) {
+        throw error;
+    } finally {
+        if (this.pool.connected) {
+            await this.pool.close();
+        }
+    }
+
+}
+
+
+/*****************************smartping******************************************************************************************************************************** */
 public async executeInsertMessage(messageDto: MessageDto): Promise<any> {
   let poolConnection;
   try {
@@ -312,6 +333,9 @@ public async executeInsertMessage(messageDto: MessageDto): Promise<any> {
     request.input('Campaign', messageDto.campaign);
     request.input('Sender', messageDto.sender);
     request.input('MessageContent_Text', messageDto.message_content.text);
+    request.input('MessageContent_Text', messageDto.message_content.caption);
+    request.input('MessageContent_Text', messageDto.message_content.url);
+    request.input('MessageContent_Text', messageDto.message_content.urlExpiry);
     request.input('MessageType', messageDto.message_type);
     request.input('Status', messageDto.status);
     request.input('IsHSM', messageDto.is_HSM.toString());
@@ -342,4 +366,62 @@ public async executeInsertMessage(messageDto: MessageDto): Promise<any> {
     }
   }
 }
+/**************************************************************************gettemplate****************************************************************************************** */
+public async getTemplates(): Promise<any> {
+  try {
+    const token = await this.getAuthToken();
+    const response = await axios.get('https://apis.rmlconnect.net/wba/templates', {
+      headers: {
+        Authorization: token,
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching templates:', error);
+    throw new HttpException(
+      error.response?.data || 'An error occurred while fetching templates',
+      error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR
+    );
+  }
+}
+
+/***********************************************create template**************************************************************************************************** */
+//private readonly apiUrl = 'https://apis.rmlconnect.net/wba/template/create';
+public readonly templateApiUrl = 'https://apis.rmlconnect.net/wba/template/create';
+public async createTemplate(createTemplateDto: CreateTemplateDto): Promise<any> {
+  try {
+    // Get the auth token
+    const token = await this.getAuthToken();
+
+    // Ensure the token is valid and non-empty
+    if (!token) {
+      throw new HttpException('Token generation failed', HttpStatus.UNAUTHORIZED);
+    }
+
+    // Make the API request with the token in the header
+    const response = await axios.post(
+      'https://apis.rmlconnect.net/wba/template/create',
+      createTemplateDto,
+      {
+        headers: {
+          'Authorization': `${token}`, // Pass the token in the Authorization header
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error('Error creating template:', error);
+    
+    // Extract status and error message for better error handling
+    const status = error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR;
+    const message = error.response?.data || 'An error occurred while creating the template';
+    
+    throw new HttpException(message, status);
+  }
+}
+
 }

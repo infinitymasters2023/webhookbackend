@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 // whatsppreq.controller.ts
 import { Controller, Post, Body } from '@nestjs/common';
 import { WhatsappReqService } from '../service/whatsappreq.service';

@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 // CREATE PROCEDURE smartpingInsertMessageData
 //     @Id NVARCHAR(150),
 //     @Type NVARCHAR(255),

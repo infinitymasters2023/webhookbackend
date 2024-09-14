@@ -4,6 +4,15 @@ import { ApiProperty } from '@nestjs/swagger';
 export class MessageContentDto {
   @ApiProperty({ description: 'Text content of the message' })
   text: string;
+
+  @ApiProperty({ description: 'Caption for the media' })
+  caption: string;
+
+  @ApiProperty({ description: 'URL of the media' })
+  url: string;
+
+  @ApiProperty({ description: 'Expiry date of the URL' })
+  urlExpiry: string; // You might want to use a date type if this is a date
 }
 
 export class WhatsAppConversationDetailsDto {

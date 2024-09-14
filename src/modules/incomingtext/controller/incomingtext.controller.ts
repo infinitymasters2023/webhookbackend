@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Controller, Inject, Post, Body, Get, HttpStatus, HttpException } from '@nestjs/common';
+import { Controller, Inject, Post, Body, Get, HttpStatus, HttpException, HttpCode } from '@nestjs/common';
 
 import { ConnectionPool } from 'mssql';
 
@@ -10,6 +10,8 @@ import {  SendMessageDtoooo } from '../dtos/newimagesdtos';
 
 import { CommonDTO } from '../dtos/commonall.dtos';
 import { MessageDto } from '../dtos/smartping.dtos';
+import { CreateTemplateDto } from '../dtos/createtemplate.dtos';
+
 
 @Controller('incoming')
 export class IncomingtextController {
@@ -84,5 +86,42 @@ export class IncomingtextController {
       console.log('Received message:', sendMessageDto);
   
   }
-  
+  @Get('templates')
+  async getTemplates(): Promise<any> {
+    try {
+      const templates = await this.whatsappWebhookService.getTemplates();
+      return {
+        message: 'Request successfully processed.',
+        templates,
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          statusCode: error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+          message: error.message || 'An error occurred while processing your request.',
+        },
+        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+  @Post('create')
+  @HttpCode(HttpStatus.CREATED)
+  async createTemplate(@Body() createTemplateDto: CreateTemplateDto) {
+    return this.whatsappWebhookService.createTemplate(createTemplateDto);
+  }
+  @Get('countrycode')
+  async countrycodeee(): Promise<any> {
+    try {
+      const templates = await this.whatsappWebhookService.countrycode();
+      return templates
+    } catch (error) {
+      throw new HttpException(
+        {
+          statusCode: error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+          message: error.message || 'An error occurred while processing your request.',
+        },
+        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
 }
