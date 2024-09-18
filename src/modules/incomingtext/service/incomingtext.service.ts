@@ -390,12 +390,14 @@ public async getTemplates(): Promise<any> {
 //private readonly apiUrl = 'https://apis.rmlconnect.net/wba/template/create';
 public readonly templateApiUrl = 'https://apis.rmlconnect.net/wba/template/create';
 public async createTemplate(createTemplateDto: CreateTemplateDto): Promise<any> {
+  let poolConnection;
+  
   try {
     // Get the auth token
     const token = await this.getAuthToken();
 
     // Ensure the token is valid and non-empty
-    if (!token) {
+       if (!token) {
       throw new HttpException('Token generation failed', HttpStatus.UNAUTHORIZED);
     }
 
@@ -405,23 +407,60 @@ public async createTemplate(createTemplateDto: CreateTemplateDto): Promise<any> 
       createTemplateDto,
       {
         headers: {
-          'Authorization': `${token}`, // Pass the token in the Authorization header
+          'Authorization': ` ${token}`, // Pass the token in the Authorization header
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
       }
     );
+console.log('template',createTemplateDto)
+    // Insert into database
+    poolConnection = await this.pool.connect();
+    const request = new Request(poolConnection);
+    request.input('processtype', 3);
+    request.input('TemplateType', createTemplateDto.template_type);
+    request.input('TemplateName', createTemplateDto.template_name);
+    request.input('Language', createTemplateDto.language.join(','));
+    request.input('TemplateCategory', createTemplateDto.template_category); 
+    request.input('BodyText', createTemplateDto.components.body.text); 
+    createTemplateDto.components.body.example.forEach((item, index) => {
+      // Process each example item
+      // For example, you might want to prepare data for a request
+      request.input(`BodyExample`, item);
+    });
+    request.input('HeaderType', createTemplateDto.components.header.type);
+    request.input('HeaderText', createTemplateDto.components?.header?.text);
+    request.input('FooterText', createTemplateDto.components.footer.text);
+    request.input('ButtonsType', createTemplateDto.components.buttons.type);
+    createTemplateDto.components.buttons.elements.forEach((button, index) => {
+      console.log(`Button ${index + 1}: `, button);
+    
+      // Adding each button to request
+      request.input(`ButtonLabel`, button.label);
+      request.input(`ButtonWebsite`, button.website);
+      //request.input(`ButtonsTypeContactNo${index + 1}`, button.contact_no);
+      request.input(`buttonwebtype`, button.type);  // For type if it exists
+    });
+  //  request.input('ButtonLabel', createTemplateDto.components.buttons.elements);
+    await request.execute('smartpingInsertMessageData');
 
     return response.data;
+
   } catch (error) {
     console.error('Error creating template:', error);
-    
+
     // Extract status and error message for better error handling
     const status = error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR;
     const message = error.response?.data || 'An error occurred while creating the template';
-    
+
     throw new HttpException(message, status);
+
+  } finally {
+    if (poolConnection) {
+      poolConnection.release(); // or poolConnection.close() depending on your library
+    }
   }
 }
 
 }
+
