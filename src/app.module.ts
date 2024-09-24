@@ -6,11 +6,12 @@ import { AppService } from './app.service';
 import { HelperModule } from './helpers/helpers.module';
 import { IncomingTextModule} from './modules/incomingtext/incomingtex.module'
 import { DatabaseModule } from './common/database/database.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 //import { WebhookHandlerModule } from './webhook-handler/webhook-handler.module';
 
 @Module({
-  imports: [ HelperModule, DatabaseModule, IncomingTextModule],
+  imports: [ HelperModule, DatabaseModule, IncomingTextModule,AuthModule],
   controllers: [AppController],
   providers: [AppService],
 })

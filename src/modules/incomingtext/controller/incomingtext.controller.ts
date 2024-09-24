@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Controller, Inject, Post, Body, Get, HttpStatus, HttpException, HttpCode } from '@nestjs/common';
+import { Controller, Inject, Post, Body, Get, HttpStatus, HttpException, HttpCode, Param, Delete } from '@nestjs/common';
 
 import { ConnectionPool } from 'mssql';
 
@@ -11,6 +11,7 @@ import {  SendMessageDtoooo } from '../dtos/newimagesdtos';
 import { CommonDTO } from '../dtos/commonall.dtos';
 import { MessageDto } from '../dtos/smartping.dtos';
 import { CreateTemplateDto } from '../dtos/createtemplate.dtos';
+import { IResponse } from 'src/helpers/interfaces/response.interface';
 
 
 @Controller('incoming')
@@ -109,6 +110,37 @@ export class IncomingtextController {
   async createTemplate(@Body() createTemplateDto: CreateTemplateDto) {
     return this.whatsappWebhookService.createTemplate(createTemplateDto);
   }
+
+  @Post('localcreate')
+  @HttpCode(HttpStatus.CREATED)
+  async localcreateTemplate(@Body() createTemplateDto: CreateTemplateDto) {
+    return this.whatsappWebhookService.localcreateTemplate(createTemplateDto);
+  }
+  
+
+  
+  @Get('/clientlogin/:templatename')
+  async findOneBytemplateName(@Param('templatename') templatename: string): Promise<IResponse> {
+    const registerData = await this.whatsappWebhookService.findOneBytemplateName(templatename);
+    
+    if (registerData) {
+      return {
+        statusCode: 200,
+        isSuccess: true,
+        message: 'Data fetched successfully',
+        data: registerData,
+      };
+    } else {
+      return {
+        statusCode: 404,
+        isSuccess: false,
+        message: 'Template not found',
+        data: null,
+      };
+    }
+  }
+  
+
   @Get('countrycode')
   async countrycodeee(): Promise<any> {
     try {
@@ -122,6 +154,43 @@ export class IncomingtextController {
         },
         error.status || HttpStatus.INTERNAL_SERVER_ERROR,
       );
+    }
+  }
+
+
+  @Get('templatealldata')
+  async findtemplatealldata(): Promise<any> {
+    try {
+      const templates = await this.whatsappWebhookService.findtemplatealldata();
+      return templates
+    } catch (error) {
+      throw new HttpException(
+        {
+          statusCode: error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+          message: error.message || 'An error occurred while processing your request.',
+        },
+        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+  @Delete('/delclient/:templatename')
+  async deletelocaltemp(@Param('templatename') templatename: string): Promise<IResponse> {
+    const registerData = await this.whatsappWebhookService.deletedtemp(templatename);
+    
+    if (registerData) {
+      return {
+        statusCode: 200,
+        isSuccess: true,
+        message: 'Data fetched successfully',
+        data: registerData,
+      };
+    } else {
+      return {
+        statusCode: 404,
+        isSuccess: false,
+        message: 'Template not found',
+        data: null,
+      };
     }
   }
 }

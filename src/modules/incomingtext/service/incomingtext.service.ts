@@ -7,6 +7,7 @@ import { SendMessageDtoo, SendMessageDtoooo } from '../dtos/newimagesdtos';
 import { CommonDTO } from '../dtos/commonall.dtos';
 import { MessageDto } from '../dtos/smartping.dtos';
 import { CreateTemplateDto } from '../dtos/createtemplate.dtos';
+import { LoginByOtpDto } from 'src/modules/auth/dtos/auth.dto';
 //import { Connection } from 'typeorm';
 
 
@@ -383,73 +384,142 @@ public async getTemplates(): Promise<any> {
       error.response?.data || 'An error occurred while fetching templates',
       error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR
     );
-  }
+  }finally {
+    if (this.pool.connected) {
+        await this.pool.close();
+    }
+} 
 }
 
-/***********************************************create template**************************************************************************************************** */
+/***********************************************create Admin template**************************************************************************************************** */
 //private readonly apiUrl = 'https://apis.rmlconnect.net/wba/template/create';
 public readonly templateApiUrl = 'https://apis.rmlconnect.net/wba/template/create';
 public async createTemplate(createTemplateDto: CreateTemplateDto): Promise<any> {
   let poolConnection;
-  
+
   try {
     // Get the auth token
     const token = await this.getAuthToken();
 
-    // Ensure the token is valid and non-empty
-       if (!token) {
+    if (!token) {
       throw new HttpException('Token generation failed', HttpStatus.UNAUTHORIZED);
     }
 
-    // Make the API request with the token in the header
     const response = await axios.post(
       'https://apis.rmlconnect.net/wba/template/create',
       createTemplateDto,
       {
         headers: {
-          'Authorization': ` ${token}`, // Pass the token in the Authorization header
+          'Authorization': ` ${token}`,
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
       }
     );
-console.log('template',createTemplateDto)
-    // Insert into database
+
+    console.log('template', createTemplateDto);
+
     poolConnection = await this.pool.connect();
     const request = new Request(poolConnection);
+
     request.input('processtype', 3);
+    request.input('Approve', 1);
     request.input('TemplateType', createTemplateDto.template_type);
     request.input('TemplateName', createTemplateDto.template_name);
     request.input('Language', createTemplateDto.language.join(','));
-    request.input('TemplateCategory', createTemplateDto.template_category); 
-    request.input('BodyText', createTemplateDto.components.body.text); 
-    createTemplateDto.components.body.example.forEach((item, index) => {
-      // Process each example item
-      // For example, you might want to prepare data for a request
-      request.input(`BodyExample`, item);
-    });
+    request.input('TemplateCategory', createTemplateDto.template_category);
+    request.input('BodyText', createTemplateDto.components.body.text);
+    const bodyExampleString = createTemplateDto.components.body.example.join(', ');
+    request.input('BodyExample', bodyExampleString); 
     request.input('HeaderType', createTemplateDto.components.header.type);
-    request.input('HeaderText', createTemplateDto.components?.header?.text);
+    request.input('HeaderText', createTemplateDto.components?.header?.text || null);
     request.input('FooterText', createTemplateDto.components.footer.text);
     request.input('ButtonsType', createTemplateDto.components.buttons.type);
     createTemplateDto.components.buttons.elements.forEach((button, index) => {
-      console.log(`Button ${index + 1}: `, button);
-    
-      // Adding each button to request
-      request.input(`ButtonLabel`, button.label);
-      request.input(`ButtonWebsite`, button.website);
-      //request.input(`ButtonsTypeContactNo${index + 1}`, button.contact_no);
-      request.input(`buttonwebtype`, button.type);  // For type if it exists
+    console.log(`Button ${index + 1}: `, button);
+    request.input(`ButtonLabel`, button.label);
+    request.input(`ButtonWebsite`, button.website || null);
+    request.input(`ButtonWebType`, button.type || null);
+      if (button.contact_no) {
+        request.input(`ButtonContactNo${index + 1}`, button.contact_no); 
+      }
     });
-  //  request.input('ButtonLabel', createTemplateDto.components.buttons.elements);
     await request.execute('smartpingInsertMessageData');
-
     return response.data;
 
   } catch (error) {
     console.error('Error creating template:', error);
 
-    // Extract status and error message for better error handling
+    const status = error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR;
+    const message = error.response?.data || 'An error occurred while creating the template';
+
+    throw new HttpException(message, status);
+
+  } finally {
+    if (this.pool.connected) {
+        await this.pool.close();
+    }
+}
+}
+
+
+/************************************************create  Local template************************************************************************************************************************ */
+public async localcreateTemplate(createTemplateDto: CreateTemplateDto): Promise<any> {
+  let poolConnection;
+
+  try {
+    // Get the auth token
+    // const token = await this.getAuthToken();
+
+    // if (!token) {
+    //   throw new HttpException('Token generation failed', HttpStatus.UNAUTHORIZED);
+    // }
+
+    // const response = await axios.post(
+    //   'https://apis.rmlconnect.net/wba/template/create',
+    //   createTemplateDto,
+    //   {
+    //     headers: {
+    //       'Authorization': ` ${token}`,
+    //       'Content-Type': 'application/json',
+    //       'Accept': 'application/json',
+    //     },
+    //   }
+    // );
+
+    console.log('template', createTemplateDto);
+
+    poolConnection = await this.pool.connect();
+    const request = new Request(poolConnection);
+
+    request.input('processtype', 3);
+    request.input('Approve', 0);
+    request.input('TemplateType', createTemplateDto.template_type);
+    request.input('TemplateName', createTemplateDto.template_name);
+    request.input('Language', createTemplateDto.language.join(','));
+    request.input('TemplateCategory', createTemplateDto.template_category);
+    request.input('BodyText', createTemplateDto.components.body.text);
+    const bodyExampleString = createTemplateDto.components.body.example.join(', ');
+    request.input('BodyExample', bodyExampleString); 
+    request.input('HeaderType', createTemplateDto.components.header.type);
+    request.input('HeaderText', createTemplateDto.components?.header?.text || null);
+    request.input('FooterText', createTemplateDto.components.footer.text);
+    request.input('ButtonsType', createTemplateDto.components.buttons.type);
+    createTemplateDto.components.buttons.elements.forEach((button, index) => {
+    console.log(`Button ${index + 1}: `, button);
+    request.input(`ButtonLabel`, button.label);
+    request.input(`ButtonWebsite`, button.website || null);
+    request.input(`ButtonWebType`, button.type || null);
+      if (button.contact_no) {
+        request.input(`ButtonContactNo${index + 1}`, button.contact_no); 
+      }
+    });
+    await request.execute('smartpingInsertMessageData');
+   // return response.data;
+
+  } catch (error) {
+    console.error('Error creating template:', error);
+
     const status = error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR;
     const message = error.response?.data || 'An error occurred while creating the template';
 
@@ -457,10 +527,117 @@ console.log('template',createTemplateDto)
 
   } finally {
     if (poolConnection) {
-      poolConnection.release(); // or poolConnection.close() depending on your library
+      poolConnection.release();
     }
   }
 }
 
+async findOneBytemplateName(templatename: string): Promise<any> {
+  try {
+    const poolConnection = await this.pool.connect();
+    const request = new Request(poolConnection);
+
+    request.input('processtype', 4);
+    request.input('TemplateName', templatename);
+
+    console.log('TemplateName', templatename);
+    console.log(typeof templatename);
+
+    const result = await request.execute('smartpingInsertMessageData');
+    const insertedData = result.recordsets[0];
+
+    // Return all data as is
+    return insertedData;
+  } catch (error) {
+    console.log('error', error);
+    throw error;
+  } finally {
+    if (this.pool.connected) {
+      await this.pool.close();
+    }
+  }
 }
 
+async findtemplatealldata(): Promise<any> {
+  try {
+    const poolConnection = await this.pool.connect();
+    const request = new Request(poolConnection);
+
+    request.input('processtype', 5);
+
+    const result = await request.execute('smartpingInsertMessageData');
+    const insertedData = result.recordsets[0];
+
+    // Return all data as is
+    return insertedData;
+  } catch (error) {
+    console.log('error', error);
+    throw error;
+  } finally {
+    if (this.pool.connected) {
+      await this.pool.close();
+    }
+  }
+}
+async clientlogin(contactpersonmobileno: string){
+  try {
+      const poolConnection = await this.pool.connect();
+      const request = new Request(poolConnection);
+      request.input('Type', 32);
+      request.input('contactpersonmobileno', contactpersonmobileno);
+      const result = await request.execute('sp_nestjs_buyinfyshield');
+      const insertedData = result.recordsets[0];
+      console.log('insertedData', insertedData);
+      return insertedData;
+  } catch (error) {
+      throw error;
+  } finally {
+      if (this.pool.connected) {
+          await this.pool.close();
+      }
+  }
+
+}
+async updateOtpByMobile(sendOTPMultiFactorDto:LoginByOtpDto): Promise<any> {
+  try {
+      const poolConnection = await this.pool.connect();
+      const request = new Request(poolConnection);
+      request.input('Type',33);
+      request.input('otp',sendOTPMultiFactorDto.otp);
+      request.input('mobileno',sendOTPMultiFactorDto.mobile);
+      const result = await request.execute('sp_nestjs_buyinfyshield');
+      const insertedData = result.recordsets[0];
+      return insertedData;
+  } catch (error) {
+      console.log('error', error);
+      throw error;
+  } finally {
+      if (this.pool.connected) {
+          await this.pool.close();
+      }
+  }
+}
+
+
+/****************************************************************************deleted********************************************************************************************** */
+async deletedtemp(templatename:string): Promise<any> {
+  try {
+      const poolConnection = await this.pool.connect();
+      const request = new Request(poolConnection);
+      request.input('processtype',8);
+      request.input('TemplateName',templatename);
+      const result = await request.execute('smartpingInsertMessageData');
+      const insertedData = result.recordsets[0];
+      return insertedData;
+  } catch (error) {
+      console.log('error', error);
+      throw error;
+  } finally {
+      if (this.pool.connected) {
+          await this.pool.close();
+      }
+  }
+}
+
+
+}

@@ -41,9 +41,9 @@ export class AuthService {
     try {
         const poolConnection = await this.pool.connect();
         const request = new Request(poolConnection);
-        request.input('Type', 32);
+        request.input('processtype', 6);
         request.input('contactpersonmobileno', contactpersonmobileno);
-        const result = await request.execute('sp_nestjs_buyinfyshield');
+        const result = await request.execute('smartpingInsertMessageData');
         const insertedData = result.recordsets[0];
         console.log('insertedData', insertedData);
         return insertedData;
@@ -121,6 +121,28 @@ async userclientlogin(userid: string){
         }
     }
 
+/************************************************************************************************************************************************************************ */
+    async newupdateOtponBoth(newcustomerlogininfoDTO:newcustomerlogininfoDTO): Promise<any> {
+        try {
+            const poolConnection = await this.pool.connect();
+            const request = new Request(poolConnection);
+            request.input('processtype',6);
+            request.input('mobileno',newcustomerlogininfoDTO.mobile);
+            // request.input('email', newcustomerlogininfoDTO.email);
+            
+            const result = await request.execute('smartpingInsertMessageData');
+            const insertedData = result.recordsets[0];
+            return insertedData;
+        } catch (error) {
+            console.log('error', error);
+            throw error;
+        } finally {
+            if (this.pool.connected) {
+                await this.pool.close();
+            }
+        }
+    }
+
     async validateUser(passwordString: string, passwordHash: string): Promise<boolean> {
         return (passwordString === passwordHash) ? true : false
         // return this.helperService.bcryptCompare(passwordString, passwordHash);
@@ -133,14 +155,17 @@ async userclientlogin(userid: string){
     async verifyToken(token: string): Promise<Record<string, any>> {
         return this.jwtService.verify(token);
     }
-    async findOneMobileNo(mobile:string): Promise<any> {
+
+
+    async updateUserOtpByMobile(sendOTPMultiFactorDto:LoginByOtpDto): Promise<any> {
         try {
             const poolConnection = await this.pool.connect();
             const request = new Request(poolConnection);
-            request.input('Type',34);
-            request.input('mobileno',mobile);
-            const result = await request.execute('sp_nestjs_buyinfyshield');
-            const insertedData = result.recordsets[0][0];
+            request.input('processtype',7);
+            request.input('otp',sendOTPMultiFactorDto.otp);
+           // request.input('mobileno',sendOTPMultiFactorDto.mobile);
+            const result = await request.execute('smartpingInsertMessageData');
+            const insertedData = result.recordsets[0];
             return insertedData;
         } catch (error) {
             console.log('error', error);
@@ -151,6 +176,8 @@ async userclientlogin(userid: string){
             }
         }
     }
+
+    /********************************************************************************************************************************************************************** */
     async findUserMobileNo(mobile:string): Promise<any> {
         try {
             const poolConnection = await this.pool.connect();
@@ -170,16 +197,14 @@ async userclientlogin(userid: string){
         }
     }
 
-
-    async updateUserOtpByMobile(sendOTPMultiFactorDto:LoginByOtpDto): Promise<any> {
+    async findOneMobileNo(mobile:string): Promise<any> {
         try {
             const poolConnection = await this.pool.connect();
             const request = new Request(poolConnection);
-            request.input('Type',45);
-            request.input('otp',sendOTPMultiFactorDto.otp);
-            request.input('mobileno',sendOTPMultiFactorDto.mobile);
+            request.input('Type',34);
+            request.input('mobileno',mobile);
             const result = await request.execute('sp_nestjs_buyinfyshield');
-            const insertedData = result.recordsets[0];
+            const insertedData = result.recordsets[0][0];
             return insertedData;
         } catch (error) {
             console.log('error', error);
@@ -190,14 +215,15 @@ async userclientlogin(userid: string){
             }
         }
     }
+  
     async updateOtpByMobile(sendOTPMultiFactorDto:LoginByOtpDto): Promise<any> {
         try {
             const poolConnection = await this.pool.connect();
             const request = new Request(poolConnection);
-            request.input('Type',33);
+            request.input('processtype',7);
             request.input('otp',sendOTPMultiFactorDto.otp);
             request.input('mobileno',sendOTPMultiFactorDto.mobile);
-            const result = await request.execute('sp_nestjs_buyinfyshield');
+            const result = await request.execute('smartpingInsertMessageData');
             const insertedData = result.recordsets[0];
             return insertedData;
         } catch (error) {
@@ -232,26 +258,7 @@ async userclientlogin(userid: string){
 
 
  
-    async newupdateOtponBoth(newcustomerlogininfoDTO:newcustomerlogininfoDTO): Promise<any> {
-        try {
-            const poolConnection = await this.pool.connect();
-            const request = new Request(poolConnection);
-            request.input('Type',42);
-            request.input('mobileno',newcustomerlogininfoDTO.mobile);
-            request.input('email', newcustomerlogininfoDTO.email);
-            
-            const result = await request.execute('sp_nestjs_buyinfyshield');
-            const insertedData = result.recordsets[0];
-            return insertedData;
-        } catch (error) {
-            console.log('error', error);
-            throw error;
-        } finally {
-            if (this.pool.connected) {
-                await this.pool.close();
-            }
-        }
-    }
+  
 
 
     async newcustomerdataupdate(customerDataDTO:CustomerDataDTO): Promise<any> {
