@@ -305,7 +305,7 @@ async handleallRequest(requestDto: CommonDTO): Promise<any> {
         const poolConnection = await this.pool.connect();
         const request = new Request(poolConnection);
         request.input('processtype', 2);
-        const result = await request.execute('smartpingInsertMessageData');
+        const result = await request.execute('whatsApptemplatedatamanage');
         const insertedData = result.recordsets[0];
        
         return insertedData;
@@ -357,7 +357,7 @@ public async executeInsertMessage(messageDto: MessageDto): Promise<any> {
     request.input('Context', messageDto.context);
     request.input('MessageId', messageDto.messageId);
 
-    await request.execute('smartpingInsertMessageData');
+    await request.execute('whatsApptemplatedatamanage');
   } catch (error) {
     console.error('Error handling request:', error);
     throw new Error('Failed to process request');
@@ -444,7 +444,7 @@ public async createTemplate(createTemplateDto: CreateTemplateDto): Promise<any> 
         request.input(`ButtonContactNo${index + 1}`, button.contact_no); 
       }
     });
-    await request.execute('smartpingInsertMessageData');
+    await request.execute('whatsApptemplatedatamanage');
     return response.data;
 
   } catch (error) {
@@ -514,7 +514,7 @@ public async localcreateTemplate(createTemplateDto: CreateTemplateDto): Promise<
         request.input(`ButtonContactNo${index + 1}`, button.contact_no); 
       }
     });
-    await request.execute('smartpingInsertMessageData');
+    await request.execute('whatsApptemplatedatamanage');
    // return response.data;
 
   } catch (error) {
@@ -543,7 +543,7 @@ async findOneBytemplateName(templatename: string): Promise<any> {
     console.log('TemplateName', templatename);
     console.log(typeof templatename);
 
-    const result = await request.execute('smartpingInsertMessageData');
+    const result = await request.execute('whatsApptemplatedatamanage');
     const insertedData = result.recordsets[0];
 
     // Return all data as is
@@ -565,7 +565,7 @@ async findtemplatealldata(): Promise<any> {
 
     request.input('processtype', 5);
 
-    const result = await request.execute('smartpingInsertMessageData');
+    const result = await request.execute('whatsApptemplatedatamanage');
     const insertedData = result.recordsets[0];
 
     // Return all data as is
@@ -626,7 +626,7 @@ async deletedtemp(templatename:string): Promise<any> {
       const request = new Request(poolConnection);
       request.input('processtype',8);
       request.input('TemplateName',templatename);
-      const result = await request.execute('smartpingInsertMessageData');
+      const result = await request.execute('whatsApptemplatedatamanage');
       const insertedData = result.recordsets[0];
       return insertedData;
   } catch (error) {
