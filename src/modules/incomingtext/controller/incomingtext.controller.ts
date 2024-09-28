@@ -55,10 +55,10 @@ export class IncomingtextController {
   @ApiResponse({ status: 201, description: 'Request successfully processed.' })
   @ApiResponse({ status: 400, description: 'Invalid request data.' })
   @ApiResponse({ status: 500, description: 'Internal server error.' })
-  async handleallRequest(@Body() requestDto: CommonDTO): Promise<any> {
+  async handlealldRequest(@Body() requestDto: CommonDTO): Promise<any> {
     console.log('Received message payload:', JSON.stringify(requestDto, null, 2));
     try {
-      const result = await this.whatsappWebhookService.handleallRequest(requestDto);
+      const result = await this.whatsappWebhookService.handleAllRequest(requestDto);
       return { message: 'Request successfully processed.', result };
     } catch (error) {
       throw new HttpException(

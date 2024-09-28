@@ -2,100 +2,106 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 export class MessageContentDto {
-  @ApiProperty({ description: 'Text content of the message' })
+  @ApiProperty({ example: 'TEST REPLY', required: true })
   text: string;
 
-  @ApiProperty({ description: 'Caption for the media' })
-  caption: string;
+  @ApiProperty({ example: 'This is a caption', required: false })
+  caption?: string;
 
-  @ApiProperty({ description: 'URL of the media' })
-  url: string;
+  @ApiProperty({ example: 'https://example.com', required: false })
+  url?: string;
 
-  @ApiProperty({ description: 'Expiry date of the URL' })
-  urlExpiry: string; // You might want to use a date type if this is a date
+  @ApiProperty({ example: '2024-09-28T23:59:59Z', required: false })
+  urlExpiry?: string;
 }
 
-export class WhatsAppConversationDetailsDto {
-  @ApiProperty({ description: 'ID of the WhatsApp conversation' })
+export class WhatsappConversationDetailsDto {
+  @ApiProperty({ example: 'a8415e69208143fa668010e837ed3f82' })
   id: string;
 
-  @ApiProperty({ description: 'Type of the WhatsApp conversation' })
+  @ApiProperty({ example: 'UTILITY' })
   type: string;
 }
 
 export class MessageDto {
-  @ApiProperty({ description: 'Type of the message' })
+  @ApiProperty({ example: 'message' })
   type: string;
 
-  @ApiProperty({ description: 'Unique ID of the message' })
+  @ApiProperty({ example: '666c242e672bf60eb436be13' })
   id: string;
 
-  @ApiProperty({ description: 'Phone number associated with the message' })
+  @ApiProperty({ example: [] })
+  meta_data: any[];
+
+  @ApiProperty({ example: '6337cc42be7532606c705fce' })
+  project_id: string;
+
+  @ApiProperty({ example: '918116856153' })
   phone_number: string;
 
-  @ApiProperty({ description: 'Contact ID associated with the message' })
+  @ApiProperty({ example: '656f4637c9373231243f0351' })
   contact_id: string;
 
-  @ApiProperty({ description: 'Campaign related to the message', nullable: true })
+  @ApiProperty({ example: null })
   campaign: string | null;
 
-  @ApiProperty({ description: 'Sender of the message' })
+  @ApiProperty({ example: 'AGENT' })
   sender: string;
 
-  @ApiProperty({ description: 'Content of the message' })
+  @ApiProperty({ type: MessageContentDto })
   message_content: MessageContentDto;
 
-  @ApiProperty({ description: 'Type of the message' })
+  @ApiProperty({ example: 'TEXT' })
   message_type: string;
 
-  @ApiProperty({ description: 'Status of the message' })
+  @ApiProperty({ example: 'READ' })
   status: string;
 
-  @ApiProperty({ description: 'Indicates if the message is an HSM' })
+  @ApiProperty({ example: false })
   is_HSM: boolean;
 
-  @ApiProperty({ description: 'Chatbot response to the message', nullable: true })
-  chatbot_response: string | null;
+  @ApiProperty({ example: null })
+  chatbot_response: any | null;
 
-  @ApiProperty({ description: 'ID of the agent who sent the message' })
+  @ApiProperty({ example: '6337cc42be7532606c705fcd' })
   agent_id: string;
 
-  @ApiProperty({ description: 'Timestamp when the message was sent' })
+  @ApiProperty({ example: 1718363181280 })
   sent_at: number;
 
-  @ApiProperty({ description: 'Timestamp when the message was delivered' })
+  @ApiProperty({ example: 1718363183000 })
   delivered_at: number;
 
-  @ApiProperty({ description: 'Timestamp when the message was read' })
+  @ApiProperty({ example: 1718363261000 })
   read_at: number;
 
-  @ApiProperty({ description: 'Failure response if any', nullable: true })
-  failureResponse: string | null;
+  @ApiProperty({ example: null })
+  failureResponse: any | null;
 
-  @ApiProperty({ description: 'Username associated with the message' })
+  @ApiProperty({ example: 'qwerty' })
   userName: string;
 
-  @ApiProperty({ description: 'Country code of the sender' })
+  @ApiProperty({ example: '91' })
   countryCode: string;
 
-  @ApiProperty({ description: 'Submitted message ID', nullable: true })
-  submitted_message_id: string | null;
+  @ApiProperty({ example: '' })
+  submitted_message_id: string;
 
-  @ApiProperty({ description: 'Price of the message' })
+  @ApiProperty({ example: 0 })
   message_price: number;
 
-  @ApiProperty({ description: 'Type of deduction applied' })
+  @ApiProperty({ example: 'WC' })
   deductionType: string;
 
-  @ApiProperty({ description: 'MAU details', nullable: true })
-  mau_details: string | null;
+  @ApiProperty({ example: null })
+  mau_details: any | null;
 
-  @ApiProperty({ description: 'Details of the WhatsApp conversation' })
-  whatsapp_conversation_details: WhatsAppConversationDetailsDto;
+  @ApiProperty({ type: WhatsappConversationDetailsDto })
+  whatsapp_conversation_details: WhatsappConversationDetailsDto;
 
-  @ApiProperty({ description: 'Context of the message', nullable: true })
-  context: string | null;
+  @ApiProperty({ example: null })
+  context: any | null;
 
-  @ApiProperty({ description: 'WhatsApp message ID' })
+  @ApiProperty({ example: 'wamid.HBgMOTE4MTE2ODU2MTUzFQIAERgSMzMwRDVFQTM2QTkwQzA4RTJFAA==' })
   messageId: string;
 }

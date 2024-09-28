@@ -100,95 +100,60 @@ async handlesendmessage(sendMessageDto: SendMessageDtoooo): Promise<any> {
 }
   
 /**********************commondtos*********************************************************** */
-async handleallRequest(requestDto: CommonDTO): Promise<any> {
+async handleAllRequest(requestDto: CommonDTO): Promise<any> {
   let poolConnection;
   try {
     poolConnection = await this.pool.connect();
     const request = new Request(poolConnection);
 
-    // Process each message
     for (const messageDto of requestDto.messages) {
-      // Set SQL parameters based on message type
-      request.input('type', 1);
       request.input('ID', messageDto.id);
       request.input('FromNumber', messageDto.from);
       request.input('Timestamp', messageDto.timestamp);
       request.input('MessageType', messageDto.type);
       request.input('BrandMsisdn', requestDto.brand_msisdn);
-      request.input('RequestID', requestDto.request_id); // Fixed parameter name
+      request.input('RequestID', requestDto.request_id);
+      request.input('apiKey', requestDto.apiKey);
 
-      // Handle specific message types
-      switch (messageDto.type) {
-        case 'voice':
-          const voice = messageDto.voice;
-          if (voice) {
-            request.input('WFile', voice.file);
-            request.input('Wid', voice.id);
-            request.input('MimeType', voice.mime_type);
-            request.input('Sha256', voice.sha256);
-            request.input('MediaUrl', voice.media_url);
-          }
-          break;
-          case 'audio':
-            const audio = messageDto.audio;
-            if (audio) {
-              request.input('WFile', audio.file);
-              request.input('Wid', audio.id);
-              request.input('MimeType', audio.mime_type);
-              request.input('Sha256', audio.sha256);
-              request.input('MediaUrl', audio.media_url);
-            }
-            break;
-          case 'video':
-            const video = messageDto.video;
-            if (video) {
-              request.input('WFile', video.file);
-              request.input('Wid', video.id);
-              request.input('MimeType', video.mime_type);
-              request.input('Sha256', video.sha256);
-              request.input('MediaUrl', video.media_url);
-            }
-            break;
+      // Directly access properties based on message type
+      request.input('WFile', messageDto.voice?.file);
+      request.input('Wid', messageDto.voice?.id);
+      request.input('MimeType', messageDto.voice?.mime_type);
+      request.input('Sha256', messageDto.voice?.sha256);
+      request.input('MediaUrl', messageDto.voice?.media_url);
+      
+      request.input('WFile', messageDto.audio?.file);
+      request.input('Wid', messageDto.audio?.id);
+      request.input('MimeType', messageDto.audio?.mime_type);
+      request.input('Sha256', messageDto.audio?.sha256);
+      request.input('MediaUrl', messageDto.audio?.media_url);
+      
+      request.input('WFile', messageDto.video?.file);
+      request.input('Wid', messageDto.video?.id);
+      request.input('MimeType', messageDto.video?.mime_type);
+      request.input('Sha256', messageDto.video?.sha256);
+      request.input('MediaUrl', messageDto.video?.media_url);
+      
+      request.input('TextBody', messageDto.text?.body);
+      
+      request.input('WFile', messageDto.image?.file);
+      request.input('Wid', messageDto.image?.id);
+      request.input('MimeType', messageDto.image?.mime_type);
+      request.input('Sha256', messageDto.image?.sha256);
+      request.input('MediaUrl', messageDto.image?.media_url);
+      
+      request.input('WFile', messageDto.document?.file);
+      request.input('Wid', messageDto.document?.id);
+      request.input('MimeType', messageDto.document?.mime_type);
+      request.input('Sha256', messageDto.document?.sha256);
+      request.input('MediaUrl', messageDto.document?.media_url);
+      request.input('Caption', messageDto.document?.caption);
 
-
-        case 'text':
-          const text = messageDto.text;
-          if (text) {
-            request.input('Body', text.body);
-          }
-          break;
-
-        case 'image':
-          const image = messageDto.image;
-          if (image) {
-            request.input('WFile', image.file);
-            request.input('Wid', image.id);
-            request.input('MimeType', image.mime_type);
-            request.input('Sha256', image.sha256);
-            request.input('MediaUrl', image.media_url);
-            request.input('Caption', image.caption);
-          }
-          break;
-
-        case 'document':
-          const document = messageDto.document;
-          if (document) {
-            request.input('WFile', document.file);
-            request.input('Wid', document.id);
-            request.input('MimeType', document.mime_type);
-            request.input('Sha256', document.sha256);
-            request.input('MediaUrl', document.media_url);
-            request.input('Caption', document.caption);
-          }
-          break;
-      }
-
-      if (requestDto.contacts) {
-        for (const contactDto of requestDto.contacts) {
-          request.input('ProfileName', contactDto.profile.name);
-          request.input('WaID', contactDto.wa_id);
-        }
-      }
+      // Handle contact details if available
+      requestDto.contacts?.forEach(contactDto => {
+        request.input('ProfileName', contactDto.profile.name);
+        request.input('WaID', contactDto.wa_id);
+      });
 
       // Execute SQL command to insert/update message details
       await request.execute('sp_Iapl_crm_whatsappwebhook_resp');
@@ -204,6 +169,7 @@ async handleallRequest(requestDto: CommonDTO): Promise<any> {
     }
   }
 }
+
 
 
 
@@ -324,22 +290,35 @@ async handleallRequest(requestDto: CommonDTO): Promise<any> {
 public async executeInsertMessage(messageDto: MessageDto): Promise<any> {
   let poolConnection;
   try {
+    // Establish a connection to the pool
     poolConnection = await this.pool.connect();
     const request = new Request(poolConnection);
 
+    // Add input parameters from messageDto
     request.input('Id', messageDto.id);
-    request.input('Type', messageDto.type);
+    request.input('processtype', 9);
     request.input('PhoneNumber', messageDto.phone_number);
     request.input('ContactId', messageDto.contact_id);
     request.input('Campaign', messageDto.campaign);
     request.input('Sender', messageDto.sender);
-    request.input('MessageContent_Text', messageDto.message_content.text);
-    request.input('MessageContent_Text', messageDto.message_content.caption);
-    request.input('MessageContent_Text', messageDto.message_content.url);
-    request.input('MessageContent_Text', messageDto.message_content.urlExpiry);
+
+    // Handle message content fields (assuming optional fields are nullable)
+    if (messageDto.message_content.text) {
+      request.input('MessageContent_Text', messageDto.message_content.text);
+    }
+    if (messageDto.message_content.caption) {
+      request.input('MessageContent_Caption', messageDto.message_content.caption);
+    }
+    if (messageDto.message_content.url) {
+      request.input('MessageContent_Url', messageDto.message_content.url);
+    }
+    if (messageDto.message_content.urlExpiry) {
+      request.input('MessageContent_UrlExpiry', messageDto.message_content.urlExpiry);
+    }
+
     request.input('MessageType', messageDto.message_type);
     request.input('Status', messageDto.status);
-    request.input('IsHSM', messageDto.is_HSM.toString());
+    request.input('IsHSM', messageDto.is_HSM.toString()); // Convert boolean to string
     request.input('ChatbotResponse', messageDto.chatbot_response);
     request.input('AgentId', messageDto.agent_id);
     request.input('SentAt', messageDto.sent_at.toString());
@@ -352,21 +331,27 @@ public async executeInsertMessage(messageDto: MessageDto): Promise<any> {
     request.input('MessagePrice', messageDto.message_price.toString());
     request.input('DeductionType', messageDto.deductionType);
     request.input('MauDetails', messageDto.mau_details);
+
+    // Handle WhatsApp conversation details
     request.input('WhatsAppConversationDetails_Id', messageDto.whatsapp_conversation_details.id);
     request.input('WhatsAppConversationDetails_Type', messageDto.whatsapp_conversation_details.type);
+
     request.input('Context', messageDto.context);
     request.input('MessageId', messageDto.messageId);
 
+    // Execute the stored procedure
     await request.execute('whatsApptemplatedatamanage');
   } catch (error) {
     console.error('Error handling request:', error);
     throw new Error('Failed to process request');
   } finally {
     if (poolConnection) {
-      poolConnection.release(); // or poolConnection.close() depending on your library
+      // Release or close the connection depending on your library
+      poolConnection.release(); 
     }
   }
 }
+
 /**************************************************************************gettemplate****************************************************************************************** */
 public async getTemplates(): Promise<any> {
   try {
