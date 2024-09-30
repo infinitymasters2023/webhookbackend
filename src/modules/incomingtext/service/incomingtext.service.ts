@@ -325,25 +325,97 @@ export class IncomingTextService {
   public async executeInsertMessage(messageDto: MessageStatusUpdatedDto): Promise<any> {
     let poolConnection;
     try {
-      // Establish a connection to the pool
       poolConnection = await this.pool.connect();
       const request = new Request(poolConnection);
-      console.log('messageDto', messageDto);
-      console.log('PhoneNumber', messageDto.topic);
-      console.log('PhoneNumber', messageDto.data.message.message_content.url);
-      // Add input parameters from messageDto
-     
+      
+      const message = messageDto.data.message;
+      
+      // Insert common fields for all message types
+      request.input('Id', message.id);
+      request.input('Type', message.type);
+      request.input('PhoneNumber', message.phone_number);
+      request.input('ContactId', message.contact_id);
+      request.input('Campaign', message.campaign ? message.campaign.campaign_id : null); // Handle optional campaign
+      request.input('Sender', message.sender);
+      
+      // Handle optional message content fields
+      if (message.message_content) {
+        request.input('MessageContent_Text', message.message_content.text || null);
+        request.input('MessageContent_Caption', message.message_content.caption || null);
+        request.input('MessageContent_URL', message.message_content.url || null);
+        request.input('MessageContent_UrlExpiry', message.message_content.urlExpiry || null);
+      }
+  
+      request.input('MessageType', message.message_type);
+      request.input('Status', message.status);
+      request.input('IsHSM', message.is_HSM.toString());
+      
+      // Handle optional chatbot response
+      if (message.chatbot_response) {
+        request.input('ChatbotResponse', JSON.stringify(message.chatbot_response));
+      }
+  
+      request.input('AgentId', message.agent_id || null);
+      request.input('SentAt', message.sent_at ? message.sent_at.toString() : null);
+      request.input('DeliveredAt', message.delivered_at ? message.delivered_at.toString() : null);
+      request.input('ReadAt', message.read_at ? message.read_at.toString() : null);
+  
+      // Handle optional failure response
+      if (message.failureResponse) {
+        request.input('FailureResponse', JSON.stringify(message.failureResponse));
+      }
+  
+      request.input('UserName', message.userName || null);
+      request.input('CountryCode', message.countryCode || null);
+      request.input('SubmittedMessageId', message.submitted_message_id || null);
+      request.input('MessagePrice', message.message_price.toString());
+      request.input('DeductionType', message.deductionType || null);
+  
+      // Handle optional MAU details
+      if (message.mau_details) {
+        request.input('MauDetails', JSON.stringify(message.mau_details));
+      }
+  
+      // Handle WhatsApp conversation details
+      if (message.whatsapp_conversation_details) {
+        request.input('WhatsAppConversationDetails_Id', message.whatsapp_conversation_details.id);
+        request.input('WhatsAppConversationDetails_Type', message.whatsapp_conversation_details.type);
+      }
+  
+      request.input('Context', JSON.stringify(message.context || {}));
+      request.input('MessageId', message.messageId);
+  
+      // Switch case to handle different types of messages
+      switch (message.type) {
+        case 'voice':
+        case 'audio':
+        case 'video':
+        case 'text':
+        case 'image':
+        case 'document':
+          if ('contacts' in messageDto.data.message && messageDto.data.message.contacts) {
+            request.input('Contacts', JSON.stringify(messageDto.data.message.contacts));
+        }
+        break;
+        // Additional cases for other types can be added here if needed
+      }
+ 
+      await request.execute('whatsApptemplatedatamanage');
     } catch (error) {
       console.error('Error handling request:', error);
       throw new Error('Failed to process request');
     } finally {
       if (poolConnection) {
-        // Release or close the connection depending on your library
-        poolConnection.release();
+        poolConnection.release(); // Release connection
       }
     }
   }
+  
+  
 
+
+   
+   
 
 
 }

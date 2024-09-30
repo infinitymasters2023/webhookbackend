@@ -1,4 +1,5 @@
-import { ApiProperty } from "@nestjs/swagger";
+/* eslint-disable prettier/prettier */
+import { ApiProperty } from '@nestjs/swagger';
 
 export class MessageStatusUpdatedDto {
   id: string; // Unique identifier of the message DTO
@@ -23,7 +24,17 @@ export class Message {
   campaign?: Campaign | null; // Optional campaign details if any
   sender: 'SYSTEM' | 'AGENT' | 'USER' | 'API'; // Sender of the message
   message_content?: MessageContent | null; // Optional message content object
-  message_type: 'TEXT' | 'IMAGE' | 'VIDEO' | 'FILE' | 'AUDIO' | 'STICKER' | 'LOCATION' | 'CONTACT' | 'BUTTON_REPLY' | 'LIST_REPLY'; // Message type
+  message_type:
+    | 'TEXT'
+    | 'IMAGE'
+    | 'VIDEO'
+    | 'FILE'
+    | 'AUDIO'
+    | 'STICKER'
+    | 'LOCATION'
+    | 'CONTACT'
+    | 'BUTTON_REPLY'
+    | 'LIST_REPLY'; // Message type
   status: 'SENT' | 'DELIVERED' | 'READ'; // Status of the message
   is_HSM: boolean; // Whether the message is a template (HSM)
   chatbot_response?: ChatbotResponse | null; // Optional chatbot response object
