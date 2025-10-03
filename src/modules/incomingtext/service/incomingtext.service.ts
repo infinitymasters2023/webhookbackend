@@ -115,7 +115,7 @@ export class IncomingTextService {
         request.input('Timestamp', messageDto.timestamp);
         request.input('MessageType', messageDto.type);
         request.input('BrandMsisdn', requestDto.brand_msisdn);
-        request.input('RequestID', requestDto.request_id); // Fixed parameter name
+        request.input('RequestID', requestDto.request_id); 
   
         // Handle specific message types
         switch (messageDto.type) {
@@ -190,7 +190,7 @@ export class IncomingTextService {
           }
         }
   
-        // Execute SQL command to insert/update message details
+
         await request.execute('sp_Iapl_crm_whatsappwebhook_resp');
       }
   
@@ -337,7 +337,8 @@ export class IncomingTextService {
       request.input('ContactId', message.contact_id);
       request.input('Campaign', message.campaign ? message.campaign.campaign_id : null); // Handle optional campaign
       request.input('Sender', message.sender);
-      
+      request.input('channel_no ', message.project_id);
+       request.input('processtype', 9);
       // Handle optional message content fields
       if (message.message_content) {
         request.input('MessageContent_Text', message.message_content.text || null);
@@ -370,7 +371,7 @@ export class IncomingTextService {
       request.input('SubmittedMessageId', message.submitted_message_id || null);
       request.input('MessagePrice', message.message_price.toString());
       request.input('DeductionType', message.deductionType || null);
-  
+    //  request.input('channel_no', message.wa_id);
       // Handle optional MAU details
       if (message.mau_details) {
         request.input('MauDetails', JSON.stringify(message.mau_details));
