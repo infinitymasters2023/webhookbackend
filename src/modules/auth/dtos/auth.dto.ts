@@ -174,11 +174,7 @@ export class CustomerDataDTO {
 }
 
 export class newcustomerlogininfoDTO {
- 
-    @ApiProperty()
-    @IsString()
-    @IsNotEmpty()
-    email: string;
+
 
     @ApiProperty()
     @IsNotEmpty()

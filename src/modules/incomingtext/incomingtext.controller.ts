@@ -1,6 +1,7 @@
+/* eslint-disable prettier/prettier */
 import { Controller,Inject, Post, Body } from '@nestjs/common';
 import { WebhookPayloadDto } from './incomingtext-payload.dto';
-import { ConnectionPool, Request } from 'mssql';
+import { ConnectionPool } from 'mssql';
 import { IncomingResponse } from './incomingtext.response.interface';
 import { IncomingTextService } from './incomingtext.service';
 

@@ -77,14 +77,14 @@ export class IncomingtextController {
       // Log the received message
       try {
         const result = await this.whatsappWebhookService.executeInsertMessage(sendMessageDto);
-        return { message: 'Request successfully processed_Check.', result };
+        return { message: 'Request successfully processed.', result };
       } catch (error) {
         throw new HttpException(
           { message: error.message || 'Failed to process request' },
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
-      console.log('Received message_Check:', sendMessageDto);
+      console.log('Received message:', sendMessageDto);
   
   }
 }
