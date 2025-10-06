@@ -68,23 +68,25 @@ export class IncomingtextController {
     }
   }
 
+@Post('smartping')
+@ApiResponse({ status: 201, description: 'Request successfully processed.' })
+@ApiResponse({ status: 400, description: 'Invalid request data.' })
+@ApiResponse({ status: 500, description: 'Internal server error.' })
+async smartpingsendMessagess(@Body() sendMessageDto: MessageStatusUpdatedDto): Promise<any> {
+  console.log('📩 [Incoming Webhook] Received payload:', JSON.stringify(sendMessageDto, null, 2));
 
-  @Post('smartping')
-  @ApiResponse({ status: 201, description: 'Request successfully processed.' })
-  @ApiResponse({ status: 400, description: 'Invalid request data.' })
-  @ApiResponse({ status: 500, description: 'Internal server error.' })
-  async smartpingsendMessagess(@Body() sendMessageDto: MessageStatusUpdatedDto): Promise<any> {
-      // Log the received message
-      try {
-        const result = await this.whatsappWebhookService.executeInsertMessage(sendMessageDto);
-        return { message: 'Request successfully processed.', result };
-      } catch (error) {
-        throw new HttpException(
-          { message: error.message || 'Failed to process request' },
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
-      console.log('Received message:', sendMessageDto);
-  
+  try {
+    const result = await this.whatsappWebhookService.executeInsertMessage(sendMessageDto);
+    console.log('✅ [Webhook Processed] Database insert result:', result);
+
+    return { message: 'Request successfully processed.', result };
+  } catch (error) {
+    console.error('❌ [Webhook Error] Failed to process message:', error.message);
+    throw new HttpException(
+      { message: error.message || 'Failed to process request' },
+      HttpStatus.INTERNAL_SERVER_ERROR,
+    );
   }
+}
+
 }
