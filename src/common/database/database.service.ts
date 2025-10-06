@@ -12,9 +12,9 @@ export class DatabaseService implements TypeOrmOptionsFactory {
     const dbPort = process.env.DB_PORT || '1433'
     return {
       username: process.env.DB_USER || 'azure-sa',
-      password: process.env.DB_PASS || 'Pass@123',
+      password: process.env.DB_PASS || '192.168.1.13',
       database: process.env.DB_NAME || 'iapl',
-      host: process.env.DB_HOST || '192.168.1.12',
+      host: process.env.DB_HOST || '192.168.1.13',
       port: +dbPort,
       type: 'mssql',
       entities: entities,

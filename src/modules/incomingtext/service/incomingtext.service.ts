@@ -115,7 +115,7 @@ export class IncomingTextService {
         request.input('Timestamp', messageDto.timestamp);
         request.input('MessageType', messageDto.type);
         request.input('BrandMsisdn', requestDto.brand_msisdn);
-        request.input('RequestID', requestDto.request_id); 
+        request.input('RequestID', requestDto.request_id); // Fixed parameter name
   
         // Handle specific message types
         switch (messageDto.type) {
@@ -190,7 +190,7 @@ export class IncomingTextService {
           }
         }
   
-
+        // Execute SQL command to insert/update message details
         await request.execute('sp_Iapl_crm_whatsappwebhook_resp');
       }
   
@@ -329,16 +329,15 @@ export class IncomingTextService {
       const request = new Request(poolConnection);
       
       const message = messageDto.data.message;
-      
+      request.input('processtype', 9);
       // Insert common fields for all message types
       request.input('Id', message.id);
       request.input('Type', message.type);
       request.input('PhoneNumber', message.phone_number);
       request.input('ContactId', message.contact_id);
-      request.input('Campaign', message.campaign ? message.campaign.campaign_id : null); // Handle optional campaign
+      request.input('Campaign', JSON.stringify(message.campaign)); // Handle optional campaign
       request.input('Sender', message.sender);
-      request.input('channel_no ', message.project_id);
-       request.input('processtype', 9);
+      
       // Handle optional message content fields
       if (message.message_content) {
         request.input('MessageContent_Text', message.message_content.text || null);
@@ -371,7 +370,7 @@ export class IncomingTextService {
       request.input('SubmittedMessageId', message.submitted_message_id || null);
       request.input('MessagePrice', message.message_price.toString());
       request.input('DeductionType', message.deductionType || null);
-    //  request.input('channel_no', message.wa_id);
+  
       // Handle optional MAU details
       if (message.mau_details) {
         request.input('MauDetails', JSON.stringify(message.mau_details));
@@ -394,13 +393,13 @@ export class IncomingTextService {
         case 'text':
         case 'image':
         case 'document':
-          if ('contacts' in messageDto.data.message && messageDto.data.message.contacts) {
+       if ('contacts' in messageDto.data.message && messageDto.data.message.contacts) {
             request.input('Contacts', JSON.stringify(messageDto.data.message.contacts));
         }
         break;
         // Additional cases for other types can be added here if needed
       }
- 
+      console.log('Received message:',messageDto.data.message.campaign);
       await request.execute('whatsApptemplatedatamanage');
     } catch (error) {
       console.error('Error handling request:', error);
