@@ -12,7 +12,7 @@ export const databaseProviders = [
                 const pool = new ConnectionPool({
                     user: process.env.DB_USER || 'azure-sa',
                     password: process.env.DB_PASS || 'ugsf127ghFHSD86dfsDS',
-                    server: process.env.DB_HOST || 'infinitysqlmanagedinstance.22e461bedfe7.database.windows.net',
+                    server: process.env.DB_HOST || '192.168.1.13',
                     database: process.env.DB_NAME || 'iapl',
                     connectionTimeout: 30000,
                     requestTimeout: 30000,
