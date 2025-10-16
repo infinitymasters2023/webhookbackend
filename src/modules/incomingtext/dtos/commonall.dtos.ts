@@ -61,7 +61,7 @@ export class SendChatMessageDto {
     description: 'Template message object (required if type is template)',
     type: Object,
     example: {
-      name: 'hello_template',
+      name: 'incoming_customer',
       language: { code: 'en_US' },
       components: [
         {

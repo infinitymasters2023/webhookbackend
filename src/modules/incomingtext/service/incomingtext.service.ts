@@ -324,295 +324,304 @@ export class IncomingTextService {
 
 
   /*****************************************************************************smartping******************************************************************************************************************************** */
-  public async executeInsertMessage(messageDto: MessageStatusUpdatedDto): Promise<any> {
-    let poolConnection;
-    try {
-      console.log('🚀 [DB Operation] Starting message insert...');
-      poolConnection = await this.pool.connect();
-      const request = new Request(poolConnection);
+  // public async executeInsertMessage(messageDto: MessageStatusUpdatedDto): Promise<any> {
+  //   let poolConnection;
+  //   try {
+  //     console.log('🚀 [DB Operation] Starting message insert...');
+  //     poolConnection = await this.pool.connect();
+  //     const request = new Request(poolConnection);
 
-      const message = messageDto.data.message;
-      console.log('🧩 [Message Extracted]', message.id, '-', message.message_type);
+  //     const message = messageDto.data.message;
+  //     console.log('🧩 [Message Extracted]', message.id, '-', message.message_type);
 
-      // Insert common fields for all message types
-      request.input('processtype', 9);
-      request.input('Id', message.id);
-      request.input('Type', message.type);
-      request.input('PhoneNumber', message.phone_number);
-      request.input('ContactId', message.contact_id);
-      request.input('Campaign', JSON.stringify(message.campaign));
-      request.input('Sender', message.sender);
-      request.input('channel_no', message.project_id);
+  //     // Insert common fields for all message types
+  //     request.input('processtype', 9);
+  //     request.input('Id', message.id);
+  //     request.input('Type', message.type);
+  //     request.input('PhoneNumber', message.phone_number);
+  //     request.input('ContactId', message.contact_id);
+  //     request.input('Campaign', JSON.stringify(message.campaign));
+  //     request.input('Sender', message.sender);
+  //     request.input('channel_no', message.project_id);
 
-      // Message Content
-      if (message.message_content) {
-        console.log('📝 [MessageContent] Text:', message.message_content.text);
-        request.input('MessageContent_Text', message.message_content.text || null);
-        request.input('MessageContent_Caption', message.message_content.caption || null);
-        request.input('MessageContent_URL', message.message_content.url || null);
-        request.input('MessageContent_UrlExpiry', message.message_content.urlExpiry || null);
-      }
+  //     // Message Content
+  //     if (message.message_content) {
+  //       console.log('📝 [MessageContent] Text:', message.message_content.text);
+  //       request.input('MessageContent_Text', message.message_content.text || null);
+  //       request.input('MessageContent_Caption', message.message_content.caption || null);
+  //       request.input('MessageContent_URL', message.message_content.url || null);
+  //       request.input('MessageContent_UrlExpiry', message.message_content.urlExpiry || null);
+  //     }
 
-      // Message meta info
-      request.input('MessageType', message.message_type);
-      request.input('Status', message.status);
-      request.input('IsHSM', message.is_HSM.toString());
+  //     // Message meta info
+  //     request.input('MessageType', message.message_type);
+  //     request.input('Status', message.status);
+  //     request.input('IsHSM', message.is_HSM.toString());
 
-      // Chatbot response
-      if (message.chatbot_response) {
-        console.log('🤖 [ChatbotResponse] Intent:', message.chatbot_response.intent);
-        request.input('ChatbotResponse', JSON.stringify(message.chatbot_response));
-      }
+  //     // Chatbot response
+  //     if (message.chatbot_response) {
+  //       console.log('🤖 [ChatbotResponse] Intent:', message.chatbot_response.intent);
+  //       request.input('ChatbotResponse', JSON.stringify(message.chatbot_response));
+  //     }
 
-      // Optional values
-      request.input('AgentId', message.agent_id || null);
-      request.input('SentAt', message.sent_at ? message.sent_at.toString() : null);
-      request.input('DeliveredAt', message.delivered_at ? message.delivered_at.toString() : null);
-      request.input('ReadAt', message.read_at ? message.read_at.toString() : null);
+  //     // Optional values
+  //     request.input('AgentId', message.agent_id || null);
+  //     request.input('SentAt', message.sent_at ? message.sent_at.toString() : null);
+  //     request.input('DeliveredAt', message.delivered_at ? message.delivered_at.toString() : null);
+  //     request.input('ReadAt', message.read_at ? message.read_at.toString() : null);
 
-      // Failure response
-      if (message.failureResponse) {
-        console.log('⚠️ [FailureResponse]', message.failureResponse);
-        request.input('FailureResponse', JSON.stringify(message.failureResponse));
-      }
+  //     // Failure response
+  //     if (message.failureResponse) {
+  //       console.log('⚠️ [FailureResponse]', message.failureResponse);
+  //       request.input('FailureResponse', JSON.stringify(message.failureResponse));
+  //     }
 
-      // Other details
-      request.input('UserName', message.userName || null);
-      request.input('CountryCode', message.countryCode || null);
-      request.input('SubmittedMessageId', message.submitted_message_id || null);
-      request.input('MessagePrice', message.message_price.toString());
-      request.input('DeductionType', message.deductionType || null);
+  //     // Other details
+  //     request.input('UserName', message.userName || null);
+  //     request.input('CountryCode', message.countryCode || null);
+  //     request.input('SubmittedMessageId', message.submitted_message_id || null);
+  //     request.input('MessagePrice', message.message_price.toString());
+  //     request.input('DeductionType', message.deductionType || null);
 
-      // MAU details
-      if (message.mau_details) {
-        console.log('📊 [MAU Details]', message.mau_details);
-        request.input('MauDetails', JSON.stringify(message.mau_details));
-      }
+  //     // MAU details
+  //     if (message.mau_details) {
+  //       console.log('📊 [MAU Details]', message.mau_details);
+  //       request.input('MauDetails', JSON.stringify(message.mau_details));
+  //     }
 
-      // WhatsApp conversation
-      if (message.whatsapp_conversation_details) {
-        console.log('💬 [WA Conversation]', message.whatsapp_conversation_details.id);
-        request.input('WhatsAppConversationDetails_Id', message.whatsapp_conversation_details.id);
-        request.input('WhatsAppConversationDetails_Type', message.whatsapp_conversation_details.type);
-      }
+  //     // WhatsApp conversation
+  //     if (message.whatsapp_conversation_details) {
+  //       console.log('💬 [WA Conversation]', message.whatsapp_conversation_details.id);
+  //       request.input('WhatsAppConversationDetails_Id', message.whatsapp_conversation_details.id);
+  //       request.input('WhatsAppConversationDetails_Type', message.whatsapp_conversation_details.type);
+  //     }
 
-      // Context
-      request.input('Context', JSON.stringify(message.context || {}));
-      request.input('MessageId', message.messageId);
+  //     // Context
+  //     request.input('Context', JSON.stringify(message.context || {}));
+  //     request.input('MessageId', message.messageId);
 
-      // Handle attachments
-      switch (message.type) {
-        case 'voice':
-        case 'audio':
-        case 'video':
-        case 'text':
-        case 'image':
-        case 'document':
-          if ('contacts' in messageDto.data.message && messageDto.data.message.contacts) {
-            console.log('📞 [Contacts Detected]', messageDto.data.message.contacts);
-            request.input('Contacts', JSON.stringify(messageDto.data.message.contacts));
-          }
-          break;
-      }
+  //     // Handle attachments
+  //     switch (message.type) {
+  //       case 'voice':
+  //       case 'audio':
+  //       case 'video':
+  //       case 'text':
+  //       case 'image':
+  //       case 'document':
+  //         if ('contacts' in messageDto.data.message && messageDto.data.message.contacts) {
+  //           console.log('📞 [Contacts Detected]', messageDto.data.message.contacts);
+  //           request.input('Contacts', JSON.stringify(messageDto.data.message.contacts));
+  //         }
+  //         break;
+  //     }
 
-      console.log('🗄️ [Executing SP] whatsApptemplatedatamanage with message ID:', message.id);
-      const result = await request.execute('whatsApptemplatedatamanage');
+  //     console.log('🗄️ [Executing SP] whatsApptemplatedatamanage with message ID:', message.id);
+  //     const result = await request.execute('whatsApptemplatedatamanage');
 
-      console.log('✅ [SP Completed] Stored procedure executed successfully.');
-      return result;
+  //     console.log('✅ [SP Completed] Stored procedure executed successfully.');
+  //     return result;
 
-    } catch (error) {
-      console.error('❌ [DB Error] Failed to insert message:', error);
-      throw new Error('Failed to process request');
-    } finally {
-      if (poolConnection) {
-        console.log('🔚 [DB Connection] Releasing connection...');
-        poolConnection.release();
+  //   } catch (error) {
+  //     console.error('❌ [DB Error] Failed to insert message:', error);
+  //     throw new Error('Failed to process request');
+  //   } finally {
+  //     if (poolConnection) {
+  //       console.log('🔚 [DB Connection] Releasing connection...');
+  //       poolConnection.release();
+  //     }
+  //   }
+  // }
+public async executeInsertMessage(messageDto: MessageStatusUpdatedDto): Promise<any> {
+  let poolConnection;
+  try {
+    console.log('🚀 [DB Operation] Starting message insert...');
+    poolConnection = await this.pool.connect();
+    const request = new Request(poolConnection);
+
+    const message = messageDto.data.message;
+
+    // -------------------------------
+    // Insert common fields for all message types
+    // -------------------------------
+    request.input('processtype', 9);
+    request.input('Id', message.id);
+    request.input('Type', message.type);
+    request.input('PhoneNumber', message.phone_number);
+    request.input('ContactId', message.contact_id);
+    request.input('Campaign', JSON.stringify(message.campaign));
+    request.input('Sender', message.sender);
+    request.input('channel_no', message.project_id);
+
+    // Message Content
+    if (message.message_content) {
+      request.input('MessageContent_Text', message.message_content.text || null);
+      request.input('MessageContent_Caption', message.message_content.caption || null);
+      request.input('MessageContent_URL', message.message_content.url || null);
+      request.input('MessageContent_UrlExpiry', message.message_content.urlExpiry || null);
+    }
+
+    // Message meta info
+    request.input('MessageType', message.message_type);
+    request.input('Status', message.status);
+    request.input('IsHSM', message.is_HSM.toString());
+
+    // Chatbot response
+    if (message.chatbot_response) {
+      request.input('ChatbotResponse', JSON.stringify(message.chatbot_response));
+    }
+
+    // Optional values
+    request.input('AgentId', message.agent_id || null);
+    request.input('SentAt', message.sent_at ? message.sent_at.toString() : null);
+    request.input('DeliveredAt', message.delivered_at ? message.delivered_at.toString() : null);
+    request.input('ReadAt', message.read_at ? message.read_at.toString() : null);
+
+    // Failure response
+    if (message.failureResponse) {
+      request.input('FailureResponse', JSON.stringify(message.failureResponse));
+    }
+
+    // Other details
+    request.input('UserName', message.userName || null);
+    request.input('CountryCode', message.countryCode || null);
+    request.input('SubmittedMessageId', message.submitted_message_id || null);
+    request.input('MessagePrice', message.message_price.toString());
+    request.input('DeductionType', message.deductionType || null);
+
+    // MAU details
+    if (message.mau_details) {
+      request.input('MauDetails', JSON.stringify(message.mau_details));
+    }
+
+    // WhatsApp conversation
+    if (message.whatsapp_conversation_details) {
+      request.input('WhatsAppConversationDetails_Id', message.whatsapp_conversation_details.id);
+      request.input('WhatsAppConversationDetails_Type', message.whatsapp_conversation_details.type);
+    }
+
+    // Context
+    request.input('Context', JSON.stringify(message.context || {}));
+    request.input('MessageId', message.messageId);
+
+    // Handle attachments
+    switch (message.type) {
+      case 'voice':
+      case 'audio':
+      case 'video':
+      case 'text':
+      case 'image':
+      case 'document':
+        if ('contacts' in messageDto.data.message && messageDto.data.message.contacts) {
+          request.input('Contacts', JSON.stringify(messageDto.data.message.contacts));
+        }
+        break;
+    }
+
+    console.log('🗄️ [Executing SP] whatsApptemplatedatamanage with message ID:', message.id);
+    const result = await request.execute('whatsApptemplatedatamanage');
+    console.log('✅ [SP Completed] Stored procedure executed successfully.');
+
+    // -------------------------------
+    // Auto-send template message if channel_no matches
+    // -------------------------------
+    if (message.project_id === '6593fdb700f84f37323b819d') {
+      try {
+        console.log('📩 [Auto-Sending Template Message] for channel_no:', message.project_id);
+
+        const chatDto: SendChatMessageDto = {
+          projectId: message.project_id,
+          to: message.phone_number.startsWith('+') ? message.phone_number : `+${message.phone_number}`,
+          type: 'template', // fixed template type
+        };
+
+        const chatResponse = await this.sendChatMessage(chatDto);
+        console.log('✅ [AiSensy Template Message Sent]', chatResponse);
+      } catch (err) {
+        console.error('❌ [AiSensy Send Error]', err);
       }
     }
+
+    return result;
+  } catch (error) {
+    console.error('❌ [DB Error] Failed to insert message:', error);
+    throw new Error('Failed to process request');
+  } finally {
+    if (poolConnection) {
+      console.log('🔚 [DB Connection] Releasing connection...');
+      poolConnection.release();
+    }
   }
-// public async executeInsertMessage(messageDto: MessageStatusUpdatedDto): Promise<any> {
-//   let poolConnection;
-//   try {
-//     console.log('🚀 [DB Operation] Starting message insert...');
-//     poolConnection = await this.pool.connect();
-//     const request = new Request(poolConnection);
+}
 
-//     const message = messageDto.data.message;
-//     console.log('🧩 [Message Extracted]', message.id, '-', message.message_type);
-
-//     // Insert common fields for all message types
-//     request.input('processtype', 9);
-//     request.input('Id', message.id);
-//     request.input('Type', message.type);
-//     request.input('PhoneNumber', message.phone_number);
-//     request.input('ContactId', message.contact_id);
-//     request.input('Campaign', JSON.stringify(message.campaign));
-//     request.input('Sender', message.sender);
-//     request.input('channel_no', message.project_id);
-
-//     // Message Content
-//     if (message.message_content) {
-//       console.log('📝 [MessageContent] Text:', message.message_content.text);
-//       request.input('MessageContent_Text', message.message_content.text || null);
-//       request.input('MessageContent_Caption', message.message_content.caption || null);
-//       request.input('MessageContent_URL', message.message_content.url || null);
-//       request.input('MessageContent_UrlExpiry', message.message_content.urlExpiry || null);
-//     }
-
-//     // Message meta info
-//     request.input('MessageType', message.message_type);
-//     request.input('Status', message.status);
-//     request.input('IsHSM', message.is_HSM.toString());
-
-//     // Chatbot response
-//     if (message.chatbot_response) {
-//       console.log('🤖 [ChatbotResponse] Intent:', message.chatbot_response.intent);
-//       request.input('ChatbotResponse', JSON.stringify(message.chatbot_response));
-//     }
-
-//     // Optional values
-//     request.input('AgentId', message.agent_id || null);
-//     request.input('SentAt', message.sent_at ? message.sent_at.toString() : null);
-//     request.input('DeliveredAt', message.delivered_at ? message.delivered_at.toString() : null);
-//     request.input('ReadAt', message.read_at ? message.read_at.toString() : null);
-
-//     // Failure response
-//     if (message.failureResponse) {
-//       console.log('⚠️ [FailureResponse]', message.failureResponse);
-//       request.input('FailureResponse', JSON.stringify(message.failureResponse));
-//     }
-
-//     // Other details
-//     request.input('UserName', message.userName || null);
-//     request.input('CountryCode', message.countryCode || null);
-//     request.input('SubmittedMessageId', message.submitted_message_id || null);
-//     request.input('MessagePrice', message.message_price.toString());
-//     request.input('DeductionType', message.deductionType || null);
-
-//     // MAU details
-//     if (message.mau_details) {
-//       console.log('📊 [MAU Details]', message.mau_details);
-//       request.input('MauDetails', JSON.stringify(message.mau_details));
-//     }
-
-//     // WhatsApp conversation
-//     if (message.whatsapp_conversation_details) {
-//       console.log('💬 [WA Conversation]', message.whatsapp_conversation_details.id);
-//       request.input('WhatsAppConversationDetails_Id', message.whatsapp_conversation_details.id);
-//       request.input('WhatsAppConversationDetails_Type', message.whatsapp_conversation_details.type);
-//     }
-
-//     // Context
-//     request.input('Context', JSON.stringify(message.context || {}));
-//     request.input('MessageId', message.messageId);
-
-//     // Handle attachments
-//     switch (message.type) {
-//       case 'voice':
-//       case 'audio':
-//       case 'video':
-//       case 'text':
-//       case 'image':
-//       case 'document':
-//         if ('contacts' in messageDto.data.message && messageDto.data.message.contacts) {
-//           console.log('📞 [Contacts Detected]', messageDto.data.message.contacts);
-//           request.input('Contacts', JSON.stringify(messageDto.data.message.contacts));
-//         }
-//         break;
-//     }
-
-//     console.log('🗄️ [Executing SP] whatsApptemplatedatamanage with message ID:', message.id);
-//     const result = await request.execute('whatsApptemplatedatamanage');
-//     console.log('✅ [SP Completed] Stored procedure executed successfully.');
-
-//     // -------------------------------
-//     // Auto-send template message if channel_no matches
-//     // -------------------------------
-//     if (message.project_id === '65dede6dc66f1309ef4b8d69') {
-//       try {
-//         console.log('📩 [Auto-Sending Template Message] for channel_no:', message.project_id);
-
-//         const chatDto: SendChatMessageDto = {
-//           projectId: message.project_id,
-//           to: message.phone_number,
-//           type: 'template', // fixed template type
-//         };
-
-//         const chatResponse = await this.sendChatMessage(chatDto);
-//         console.log('✅ [AiSensy Template Message Sent]', chatResponse);
-//       } catch (err) {
-//         console.error('❌ [AiSensy Send Error]', err);
-//       }
-//     }
-
-//     return result;
-
-//   } catch (error) {
-//     console.error('❌ [DB Error] Failed to insert message:', error);
-//     throw new Error('Failed to process request');
-//   } finally {
-//     if (poolConnection) {
-//       console.log('🔚 [DB Connection] Releasing connection...');
-//       poolConnection.release();
-//     }
-//   }
-// }
 
   /*************************************smartping chat*********************************************************************** */
 
-  private readonly apiBaseUrl = 'https://apis.aisensy.com/project-apis/v1/project';
-  private readonly partnerApiKey = 'e65cec710cb4ae44d27b0   ';
-  public async sendChatMessage(dto: SendChatMessageDto): Promise<any> {
-    try {
-      const { projectId, to, type = 'text', body, imageLink, documentLink, caption } = dto;
+private readonly apiBaseUrl = 'https://apis.aisensy.com/project-apis/v1/project';
+private readonly partnerApiKey = 'e7cd0798dc1fcd42ccf05';
 
-      const payload: any = {
-        to,
-        type,
-        recipient_type: 'individual',
+public async sendChatMessage(dto: SendChatMessageDto): Promise<any> {
+  try {
+    const { to, type = 'text', body, imageLink, documentLink, caption, template } = dto;
+
+    // ✅ Always ensure phone number has a '+' prefix
+    const formattedTo = to.startsWith('+') ? to : `+${to}`;
+
+    const payload: any = {
+      projectId: '6593fdb700f84f37323b819d',
+      to: formattedTo,
+      type,
+      recipient_type: 'individual',
+    };
+
+    // Build message content based on type
+    if (type === 'text') {
+      payload.text = { body };
+    } else if (type === 'image' && imageLink) {
+      payload.image = { link: imageLink, caption: caption || '' };
+    } else if (type === 'document' && documentLink) {
+      payload.document = { link: documentLink, caption: caption || '' };
+    } else if (type === 'template') {
+      // Use provided template if exists, otherwise default
+      const tpl = template || {
+        name: 'test_iamge2',
+        language: { code: 'en' },
+        components: [],
       };
-// fg_fpms_proxy_info
-      // Build message content based on type
-      if (type === 'text') {
-        payload.text = { body };
-      } else if (type === 'image' && imageLink) {
-        payload.image = { link: imageLink, caption: caption || '' };
-      } else if (type === 'document' && documentLink) {
-        payload.document = { link: documentLink, caption: caption || '' };
-      }
-        else if (type === 'template') {
+
+      // Ensure components is always an array
+      tpl.components = tpl.components || [];
 
       payload.template = {
-        name: 'fg_fpms_proxy_info',
-        language: { code: 'en' },
+        name: tpl.name,
+        language: tpl.language,
+        components: tpl.components,
       };
-    } 
-      else {
-        throw new Error('Invalid message type or missing content');
-      }
-
-      const response = await axios.post(
-        `${this.apiBaseUrl}/${projectId}/messages`,
-        payload,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Accept: 'application/json',
-            'X-AiSensy-Project-API-Pwd': this.partnerApiKey,
-          },
-        },
-      );
-
-      return response.data;
-    } catch (error) {
-      console.error('Error sending AiSensy chat message:', error.response?.data || error.message);
-      throw new HttpException(
-        error.response?.data || 'Failed to send chat message',
-        error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+    } else {
+      throw new Error('Invalid message type or missing content');
     }
+
+    const response = await axios.post(
+      `${this.apiBaseUrl}/${payload.projectId}/messages`,
+      payload,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          'X-AiSensy-Project-API-Pwd': this.partnerApiKey,
+        },
+      },
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error('Error sending AiSensy chat message:', error.response?.data || error.message);
+    throw new HttpException(
+      error.response?.data || 'Failed to send chat message',
+      error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
+    );
   }
+}
+
 
  
 
