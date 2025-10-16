@@ -31,7 +31,55 @@ export class Document extends Media {
   @ApiProperty({ description: 'Caption for the document' })
   caption: string;
 }
+export class SendChatMessageDto {
+  @ApiProperty({ description: 'AiSensy project ID' })
+  projectId: string;
 
+  @ApiProperty({ description: 'Recipient phone number in international format' })
+  to: string;
+
+  @ApiPropertyOptional({
+    description: 'Message type',
+    enum: ['text', 'image', 'document', 'template'],
+    default: 'text',
+  })
+  type?: 'text' | 'image' | 'document' | 'template';
+
+  @ApiPropertyOptional({ description: 'Text message content (required if type is text)' })
+  body?: string;
+
+  @ApiPropertyOptional({ description: 'Image URL (required if type is image)' })
+  imageLink?: string;
+
+  @ApiPropertyOptional({ description: 'Document URL (required if type is document)' })
+  documentLink?: string;
+
+  @ApiPropertyOptional({ description: 'Caption for image or document' })
+  caption?: string;
+
+  @ApiPropertyOptional({
+    description: 'Template message object (required if type is template)',
+    type: Object,
+    example: {
+      name: 'hello_template',
+      language: { code: 'en_US' },
+      components: [
+        {
+          type: 'body',
+          parameters: [
+            { type: 'text', text: 'John' },
+            { type: 'text', text: 'Welcome!' }
+          ]
+        }
+      ]
+    },
+  })
+  template?: {
+    name: string;
+    language: { code: string };
+    components?: Array<any>;
+  };
+}
 export class TextMessage {
   @ApiProperty({ description: 'The body of the text message' })
   body: string;
