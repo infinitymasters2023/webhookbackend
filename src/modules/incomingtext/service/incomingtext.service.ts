@@ -524,22 +524,23 @@ public async executeInsertMessage(messageDto: MessageStatusUpdatedDto): Promise<
     // -------------------------------
     // Auto-send template message if channel_no matches
     // -------------------------------
-    if (message.project_id === '6593fdb700f84f37323b819d') {
-      try {
-        console.log('📩 [Auto-Sending Template Message] for channel_no:', message.project_id);
+   if ( message.project_id === '6593fdb700f84f37323b819d' &&message.type !== 'template') {
+  try {
+    console.log('📩 [Auto-Sending Template Message] for channel_no:', message.project_id);
 
-        const chatDto: SendChatMessageDto = {
-          projectId: message.project_id,
-          to: message.phone_number.startsWith('+') ? message.phone_number : `+${message.phone_number}`,
-          type: 'template', // fixed template type
-        };
+    const chatDto: SendChatMessageDto = {
+      projectId: message.project_id,
+      to: message.phone_number.startsWith('+') ? message.phone_number : `+${message.phone_number}`,
+      type: 'template',
+    };
 
-        const chatResponse = await this.sendChatMessage(chatDto);
-        console.log('✅ [AiSensy Template Message Sent]', chatResponse);
-      } catch (err) {
-        console.error('❌ [AiSensy Send Error]', err);
-      }
-    }
+    const chatResponse = await this.sendChatMessage(chatDto);
+    console.log('✅ [AiSensy Template Message Sent]', chatResponse);
+  } catch (err) {
+    console.error('❌ [AiSensy Send Error]', err);
+  }
+}
+
 
     return result;
   } catch (error) {
