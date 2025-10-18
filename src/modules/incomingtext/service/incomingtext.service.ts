@@ -621,7 +621,7 @@ public async sendChatMessage(dto: SendChatMessageDto): Promise<any> {
       recipient_type: 'individual',
     };
 
-    // Build message content based on type
+
     if (type === 'text') {
       payload.text = { body };
     } else if (type === 'image' && imageLink) {
