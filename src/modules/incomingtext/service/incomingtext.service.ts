@@ -435,243 +435,243 @@ export class IncomingTextService {
   //     }
   //   }
   // }
-// Add this cache at the top of your file (outside the class)
+  // Add this cache at the top of your file (outside the class)
 
 
-public async executeInsertMessage(messageDto: MessageStatusUpdatedDto): Promise<any> {
-  let poolConnection;
-  try {
-    console.log('🚀 [DB Operation] Starting message insert...');
-    poolConnection = await this.pool.connect();
-    const request = new Request(poolConnection);
+  public async executeInsertMessage(messageDto: MessageStatusUpdatedDto): Promise<any> {
+    let poolConnection;
+    try {
+      console.log('🚀 [DB Operation] Starting message insert...');
+      poolConnection = await this.pool.connect();
+      const request = new Request(poolConnection);
 
-    const message = messageDto.data.message;
+      const message = messageDto.data.message;
 
-    // -------------------------------
-    // Insert common fields for all message types
-    // -------------------------------
-    request.input('processtype', 9);
-    request.input('Id', message.id);
-    request.input('Type', message.type);
-    request.input('PhoneNumber', message.phone_number);
-    request.input('ContactId', message.contact_id);
-    request.input('Campaign', JSON.stringify(message.campaign));
-    request.input('Sender', message.sender);
-    request.input('channel_no', message.project_id);
+      // -------------------------------
+      // Insert common fields for all message types
+      // -------------------------------
+      request.input('processtype', 9);
+      request.input('Id', message.id);
+      request.input('Type', message.type);
+      request.input('PhoneNumber', message.phone_number);
+      request.input('ContactId', message.contact_id);
+      request.input('Campaign', JSON.stringify(message.campaign));
+      request.input('Sender', message.sender);
+      request.input('channel_no', message.project_id);
 
-    // Message Content
-    if (message.message_content) {
-      request.input('MessageContent_Text', message.message_content.text || null);
-      request.input('MessageContent_Caption', message.message_content.caption || null);
-      request.input('MessageContent_URL', message.message_content.url || null);
-      request.input('MessageContent_UrlExpiry', message.message_content.urlExpiry || null);
-    }
+      // Message Content
+      if (message.message_content) {
+        request.input('MessageContent_Text', message.message_content.text || null);
+        request.input('MessageContent_Caption', message.message_content.caption || null);
+        request.input('MessageContent_URL', message.message_content.url || null);
+        request.input('MessageContent_UrlExpiry', message.message_content.urlExpiry || null);
+      }
 
-    // Message meta info
-    request.input('MessageType', message.message_type);
-    request.input('Status', message.status);
-    request.input('IsHSM', message.is_HSM.toString());
+      // Message meta info
+      request.input('MessageType', message.message_type);
+      request.input('Status', message.status);
+      request.input('IsHSM', message.is_HSM.toString());
 
-    // Chatbot response
-    if (message.chatbot_response) {
-      request.input('ChatbotResponse', JSON.stringify(message.chatbot_response));
-    }
+      // Chatbot response
+      if (message.chatbot_response) {
+        request.input('ChatbotResponse', JSON.stringify(message.chatbot_response));
+      }
 
-    // Optional values
-    request.input('AgentId', message.agent_id || null);
-    request.input('SentAt', message.sent_at ? message.sent_at.toString() : null);
-    request.input('DeliveredAt', message.delivered_at ? message.delivered_at.toString() : null);
-    request.input('ReadAt', message.read_at ? message.read_at.toString() : null);
+      // Optional values
+      request.input('AgentId', message.agent_id || null);
+      request.input('SentAt', message.sent_at ? message.sent_at.toString() : null);
+      request.input('DeliveredAt', message.delivered_at ? message.delivered_at.toString() : null);
+      request.input('ReadAt', message.read_at ? message.read_at.toString() : null);
 
-    // Failure response
-    if (message.failureResponse) {
-      request.input('FailureResponse', JSON.stringify(message.failureResponse));
-    }
+      // Failure response
+      if (message.failureResponse) {
+        request.input('FailureResponse', JSON.stringify(message.failureResponse));
+      }
 
-    // Other details
-    request.input('UserName', message.userName || null);
-    request.input('CountryCode', message.countryCode || null);
-    request.input('SubmittedMessageId', message.submitted_message_id || null);
-    request.input('MessagePrice', message.message_price.toString());
-    request.input('DeductionType', message.deductionType || null);
+      // Other details
+      request.input('UserName', message.userName || null);
+      request.input('CountryCode', message.countryCode || null);
+      request.input('SubmittedMessageId', message.submitted_message_id || null);
+      request.input('MessagePrice', message.message_price.toString());
+      request.input('DeductionType', message.deductionType || null);
 
-    // MAU details
-    if (message.mau_details) {
-      request.input('MauDetails', JSON.stringify(message.mau_details));
-    }
+      // MAU details
+      if (message.mau_details) {
+        request.input('MauDetails', JSON.stringify(message.mau_details));
+      }
 
-    // WhatsApp conversation
-    if (message.whatsapp_conversation_details) {
-      request.input('WhatsAppConversationDetails_Id', message.whatsapp_conversation_details.id);
-      request.input('WhatsAppConversationDetails_Type', message.whatsapp_conversation_details.type);
-    }
+      // WhatsApp conversation
+      if (message.whatsapp_conversation_details) {
+        request.input('WhatsAppConversationDetails_Id', message.whatsapp_conversation_details.id);
+        request.input('WhatsAppConversationDetails_Type', message.whatsapp_conversation_details.type);
+      }
 
-    // Context
-    request.input('Context', JSON.stringify(message.context || {}));
-    request.input('MessageId', message.messageId);
+      // Context
+      request.input('Context', JSON.stringify(message.context || {}));
+      request.input('MessageId', message.messageId);
 
-    // Handle attachments
-    switch (message.type) {
-      case 'voice':
-      case 'audio':
-      case 'video':
-      case 'text':
-      case 'image':
-      case 'document':
-        if ('contacts' in messageDto.data.message && messageDto.data.message.contacts) {
-          request.input('Contacts', JSON.stringify(messageDto.data.message.contacts));
-        }
-        break;
-    }
+      // Handle attachments
+      switch (message.type) {
+        case 'voice':
+        case 'audio':
+        case 'video':
+        case 'text':
+        case 'image':
+        case 'document':
+          if ('contacts' in messageDto.data.message && messageDto.data.message.contacts) {
+            request.input('Contacts', JSON.stringify(messageDto.data.message.contacts));
+          }
+          break;
+      }
 
-    console.log('🗄️ [Executing SP] whatsApptemplatedatamanage with message ID:', message.id);
-    const result = await request.execute('whatsApptemplatedatamanage');
-    console.log('✅ [SP Completed] Stored procedure executed successfully.');
+      console.log('🗄️ [Executing SP] whatsApptemplatedatamanage with message ID:', message.id);
+      const result = await request.execute('whatsApptemplatedatamanage');
+      console.log('✅ [SP Completed] Stored procedure executed successfully.');
 
-    // -------------------------------
-    // 🚀 Smart Template Logic (one template at a time)
-    // -------------------------------
-    if (message.project_id === '6593fdb700f84f37323b819d' && message.type !== 'template') {
-      const cacheKey = `template_${message.phone_number}`;
-   const cached = this.templateCache.get<{ lastSentAt: number; lastIndex: number; awaitingResponse: boolean }>(cacheKey);
+      // -------------------------------
+      // 🚀 Smart Template Logic (one template at a time)
+      // -------------------------------
+      if (message.project_id === '6593fdb700f84f37323b819d' && message.type !== 'template') {
+        const cacheKey = `template_${message.phone_number}`;
+        const cached = this.templateCache.get<{ lastSentAt: number; lastIndex: number; awaitingResponse: boolean }>(cacheKey);
         const now = Date.now();
 
-      // Define your sequence of templates
-      const templates = [
-        { name: 'test_iamge2', language: { code: 'en' }, components: [] },
-        { name: 'incoming_custome', language: { code: 'en' }, components: [] },
-        { name: 'infyvault_platform', language: { code: 'en' }, components: [] },
-      ];
+        // Define your sequence of templates
+        const templates = [
+          { name: 'test_iamge2', language: { code: 'en' }, components: [] },
+          { name: 'incoming_custome', language: { code: 'en' }, components: [] },
+          { name: 'infyvault_platform', language: { code: 'en' }, components: [] },
+        ];
 
-      // Only send template if user is awaiting response or no cache exists
-      if (!cached || cached.awaitingResponse) {
-        let nextIndex = 0;
+        // Only send template if user is awaiting response or no cache exists
+        if (!cached || cached.awaitingResponse) {
+          let nextIndex = 0;
 
-        if (cached) {
-          const diffMinutes = (now - cached.lastSentAt) / 60000; // 10 minutes
-          nextIndex = diffMinutes <= 10 ? (cached.lastIndex + 1) % templates.length : 0;
-        }
+          if (cached) {
+            const diffMinutes = (now - cached.lastSentAt) / 60000; // 10 minutes
+            nextIndex = diffMinutes <= 10 ? (cached.lastIndex + 1) % templates.length : 0;
+          }
 
-        const selectedTemplate = templates[nextIndex];
-        console.log('📌 [Selected Template]', selectedTemplate.name);
+          const selectedTemplate = templates[nextIndex];
+          console.log('📌 [Selected Template]', selectedTemplate.name);
 
-        // Send template
-        try {
-          const smartChatDto: SendChatMessageDto = {
-            projectId: message.project_id,
-            to: message.phone_number.startsWith('+') ? message.phone_number : `+${message.phone_number}`,
-            type: 'template',
-            template: selectedTemplate,
-          };
-          const smartResponse = await this.sendChatMessage(smartChatDto);
-          console.log('✅ [Smart Template Sent]', smartResponse);
+          // Send template
+          try {
+            const smartChatDto: SendChatMessageDto = {
+              projectId: message.project_id,
+              to: message.phone_number.startsWith('+') ? message.phone_number : `+${message.phone_number}`,
+              type: 'template',
+              template: selectedTemplate,
+            };
+            const smartResponse = await this.sendChatMessage(smartChatDto);
+            console.log('✅ [Smart Template Sent]', smartResponse);
 
-          // Update cache
-           this.templateCache.set(cacheKey, {
+            // Update cache
+            this.templateCache.set(cacheKey, {
               lastSentAt: now,
               lastIndex: nextIndex,
               awaitingResponse: true,
             });
-        } catch (err) {
-          console.error('❌ [Smart Template Send Error]', err);
+          } catch (err) {
+            console.error('❌ [Smart Template Send Error]', err);
+          }
         }
       }
-    }
 
-    // If user sends non-template message, reset awaitingResponse to allow next template
-    if (message.type !== 'template') {
-      const cacheKey = `template_${message.phone_number}`;
-     const cached = this.templateCache.get<{ lastSentAt: number; lastIndex: number; awaitingResponse: boolean }>(cacheKey);
-      if (cached) {
-        cached.awaitingResponse = false;
-       this.templateCache.set(cacheKey, cached);
+      // If user sends non-template message, reset awaitingResponse to allow next template
+      if (message.type !== 'template') {
+        const cacheKey = `template_${message.phone_number}`;
+        const cached = this.templateCache.get<{ lastSentAt: number; lastIndex: number; awaitingResponse: boolean }>(cacheKey);
+        if (cached) {
+          cached.awaitingResponse = false;
+          this.templateCache.set(cacheKey, cached);
+        }
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ [DB Error] Failed to insert message:', error);
+      throw new Error('Failed to process request');
+    } finally {
+      if (poolConnection) {
+        console.log('🔚 [DB Connection] Releasing connection...');
+        poolConnection.release();
       }
     }
-
-    return result;
-  } catch (error) {
-    console.error('❌ [DB Error] Failed to insert message:', error);
-    throw new Error('Failed to process request');
-  } finally {
-    if (poolConnection) {
-      console.log('🔚 [DB Connection] Releasing connection...');
-      poolConnection.release();
-    }
   }
-}
 
 
 
   /*************************************smartping chat*********************************************************************** */
 
-private readonly apiBaseUrl = 'https://apis.aisensy.com/project-apis/v1/project';
-private readonly partnerApiKey = 'e7cd0798dc1fcd42ccf05';
+  private readonly apiBaseUrl = 'https://apis.aisensy.com/project-apis/v1/project';
+  private readonly partnerApiKey = 'e7cd0798dc1fcd42ccf05';
 
-public async sendChatMessage(dto: SendChatMessageDto): Promise<any> {
-  try {
-    const { to, type = 'text', body, imageLink, documentLink, caption, template } = dto;
+  public async sendChatMessage(dto: SendChatMessageDto): Promise<any> {
+    try {
+      const { to, type = 'text', body, imageLink, documentLink, caption, template } = dto;
 
-    // ✅ Always ensure phone number has a '+' prefix
-    const formattedTo = to.startsWith('+') ? to : `+${to}`;
+      // ✅ Always ensure phone number has a '+' prefix
+      const formattedTo = to.startsWith('+') ? to : `+${to}`;
 
-    const payload: any = {
-      projectId: '6593fdb700f84f37323b819d',
-      to: formattedTo,
-      type,
-      recipient_type: 'individual',
-    };
-
-
-    if (type === 'text') {
-      payload.text = { body };
-    } else if (type === 'image' && imageLink) {
-      payload.image = { link: imageLink, caption: caption || '' };
-    } else if (type === 'document' && documentLink) {
-      payload.document = { link: documentLink, caption: caption || '' };
-    } else if (type === 'template') {
-      // Use provided template if exists, otherwise default
-      const tpl = template || {
-        name: 'test_iamge2',
-        language: { code: 'en' },
-        components: [],
+      const payload: any = {
+        projectId: '6593fdb700f84f37323b819d',
+        to: formattedTo,
+        type,
+        recipient_type: 'individual',
       };
 
-      // Ensure components is always an array
-      tpl.components = tpl.components || [];
 
-      payload.template = {
-        name: tpl.name,
-        language: tpl.language,
-        components: tpl.components,
-      };
-    } else {
-      throw new Error('Invalid message type or missing content');
-    }
+      if (type === 'text') {
+        payload.text = { body };
+      } else if (type === 'image' && imageLink) {
+        payload.image = { link: imageLink, caption: caption || '' };
+      } else if (type === 'document' && documentLink) {
+        payload.document = { link: documentLink, caption: caption || '' };
+      } else if (type === 'template') {
+        // Use provided template if exists, otherwise default
+        const tpl = template || {
+          name: 'test_iamge2',
+          language: { code: 'en' },
+          components: [],
+        };
 
-    const response = await axios.post(
-      `${this.apiBaseUrl}/${payload.projectId}/messages`,
-      payload,
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-          'X-AiSensy-Project-API-Pwd': this.partnerApiKey,
+        // Ensure components is always an array
+        tpl.components = tpl.components || [];
+
+        payload.template = {
+          name: tpl.name,
+          language: tpl.language,
+          components: tpl.components,
+        };
+      } else {
+        throw new Error('Invalid message type or missing content');
+      }
+
+      const response = await axios.post(
+        `${this.apiBaseUrl}/${payload.projectId}/messages`,
+        payload,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+            'X-AiSensy-Project-API-Pwd': this.partnerApiKey,
+          },
         },
-      },
-    );
+      );
 
-    return response.data;
-  } catch (error) {
-    console.error('Error sending AiSensy chat message:', error.response?.data || error.message);
-    throw new HttpException(
-      error.response?.data || 'Failed to send chat message',
-      error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
-    );
+      return response.data;
+    } catch (error) {
+      console.error('Error sending AiSensy chat message:', error.response?.data || error.message);
+      throw new HttpException(
+        error.response?.data || 'Failed to send chat message',
+        error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
-}
 
 
- 
+
 
   public async getMessageDetails(projectId: string, messageId: string): Promise<any> {
     try {

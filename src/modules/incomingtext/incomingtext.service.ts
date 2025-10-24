@@ -34,7 +34,7 @@ export class IncomingTextService {
       request.input('request_id', messageDto.request_id);
       request.input('name', messageDto.name);
       request.input('wa_id', messageDto.wa_id);
-
+      
       const result = await request.execute('InsertWebhookData');
       const insertedData = result.recordset && result.recordset.length > 0 ? result.recordset[0] : null;
       return insertedData;
