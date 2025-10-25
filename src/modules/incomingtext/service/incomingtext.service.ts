@@ -328,116 +328,6 @@ export class IncomingTextService {
 
 
   /*****************************************************************************smartping******************************************************************************************************************************** */
-  // public async executeInsertMessage(messageDto: MessageStatusUpdatedDto): Promise<any> {
-  //   let poolConnection;
-  //   try {
-  //     console.log('🚀 [DB Operation] Starting message insert...');
-  //     poolConnection = await this.pool.connect();
-  //     const request = new Request(poolConnection);
-
-  //     const message = messageDto.data.message;
-  //     console.log('🧩 [Message Extracted]', message.id, '-', message.message_type);
-
-  //     // Insert common fields for all message types
-  //     request.input('processtype', 9);
-  //     request.input('Id', message.id);
-  //     request.input('Type', message.type);
-  //     request.input('PhoneNumber', message.phone_number);
-  //     request.input('ContactId', message.contact_id);
-  //     request.input('Campaign', JSON.stringify(message.campaign));
-  //     request.input('Sender', message.sender);
-  //     request.input('channel_no', message.project_id);
-
-  //     // Message Content
-  //     if (message.message_content) {
-  //       console.log('📝 [MessageContent] Text:', message.message_content.text);
-  //       request.input('MessageContent_Text', message.message_content.text || null);
-  //       request.input('MessageContent_Caption', message.message_content.caption || null);
-  //       request.input('MessageContent_URL', message.message_content.url || null);
-  //       request.input('MessageContent_UrlExpiry', message.message_content.urlExpiry || null);
-  //     }
-
-  //     // Message meta info
-  //     request.input('MessageType', message.message_type);
-  //     request.input('Status', message.status);
-  //     request.input('IsHSM', message.is_HSM.toString());
-
-  //     // Chatbot response
-  //     if (message.chatbot_response) {
-  //       console.log('🤖 [ChatbotResponse] Intent:', message.chatbot_response.intent);
-  //       request.input('ChatbotResponse', JSON.stringify(message.chatbot_response));
-  //     }
-
-  //     // Optional values
-  //     request.input('AgentId', message.agent_id || null);
-  //     request.input('SentAt', message.sent_at ? message.sent_at.toString() : null);
-  //     request.input('DeliveredAt', message.delivered_at ? message.delivered_at.toString() : null);
-  //     request.input('ReadAt', message.read_at ? message.read_at.toString() : null);
-
-  //     // Failure response
-  //     if (message.failureResponse) {
-  //       console.log('⚠️ [FailureResponse]', message.failureResponse);
-  //       request.input('FailureResponse', JSON.stringify(message.failureResponse));
-  //     }
-
-  //     // Other details
-  //     request.input('UserName', message.userName || null);
-  //     request.input('CountryCode', message.countryCode || null);
-  //     request.input('SubmittedMessageId', message.submitted_message_id || null);
-  //     request.input('MessagePrice', message.message_price.toString());
-  //     request.input('DeductionType', message.deductionType || null);
-
-  //     // MAU details
-  //     if (message.mau_details) {
-  //       console.log('📊 [MAU Details]', message.mau_details);
-  //       request.input('MauDetails', JSON.stringify(message.mau_details));
-  //     }
-
-  //     // WhatsApp conversation
-  //     if (message.whatsapp_conversation_details) {
-  //       console.log('💬 [WA Conversation]', message.whatsapp_conversation_details.id);
-  //       request.input('WhatsAppConversationDetails_Id', message.whatsapp_conversation_details.id);
-  //       request.input('WhatsAppConversationDetails_Type', message.whatsapp_conversation_details.type);
-  //     }
-
-  //     // Context
-  //     request.input('Context', JSON.stringify(message.context || {}));
-  //     request.input('MessageId', message.messageId);
-
-  //     // Handle attachments
-  //     switch (message.type) {
-  //       case 'voice':
-  //       case 'audio':
-  //       case 'video':
-  //       case 'text':
-  //       case 'image':
-  //       case 'document':
-  //         if ('contacts' in messageDto.data.message && messageDto.data.message.contacts) {
-  //           console.log('📞 [Contacts Detected]', messageDto.data.message.contacts);
-  //           request.input('Contacts', JSON.stringify(messageDto.data.message.contacts));
-  //         }
-  //         break;
-  //     }
-
-  //     console.log('🗄️ [Executing SP] whatsApptemplatedatamanage with message ID:', message.id);
-  //     const result = await request.execute('whatsApptemplatedatamanage');
-
-  //     console.log('✅ [SP Completed] Stored procedure executed successfully.');
-  //     return result;
-
-  //   } catch (error) {
-  //     console.error('❌ [DB Error] Failed to insert message:', error);
-  //     throw new Error('Failed to process request');
-  //   } finally {
-  //     if (poolConnection) {
-  //       console.log('🔚 [DB Connection] Releasing connection...');
-  //       poolConnection.release();
-  //     }
-  //   }
-  // }
-  // Add this cache at the top of your file (outside the class)
-
-
   public async executeInsertMessage(messageDto: MessageStatusUpdatedDto): Promise<any> {
     let poolConnection;
     try {
@@ -446,10 +336,9 @@ export class IncomingTextService {
       const request = new Request(poolConnection);
 
       const message = messageDto.data.message;
+      console.log('🧩 [Message Extracted]', message.id, '-', message.message_type);
 
-      // -------------------------------
       // Insert common fields for all message types
-      // -------------------------------
       request.input('processtype', 9);
       request.input('Id', message.id);
       request.input('Type', message.type);
@@ -461,6 +350,7 @@ export class IncomingTextService {
 
       // Message Content
       if (message.message_content) {
+        console.log('📝 [MessageContent] Text:', message.message_content.text);
         request.input('MessageContent_Text', message.message_content.text || null);
         request.input('MessageContent_Caption', message.message_content.caption || null);
         request.input('MessageContent_URL', message.message_content.url || null);
@@ -474,17 +364,22 @@ export class IncomingTextService {
 
       // Chatbot response
       if (message.chatbot_response) {
+        console.log('🤖 [ChatbotResponse] Intent:', message.chatbot_response.intent);
         request.input('ChatbotResponse', JSON.stringify(message.chatbot_response));
       }
 
       // Optional values
       request.input('AgentId', message.agent_id || null);
-      request.input('SentAt', message.sent_at ? message.sent_at.toString() : null);
-      request.input('DeliveredAt', message.delivered_at ? message.delivered_at.toString() : null);
-      request.input('ReadAt', message.read_at ? message.read_at.toString() : null);
+      // request.input('SentAt', message.sent_at ? message.sent_at.toString() : null);
+      // request.input('DeliveredAt', message.delivered_at ? message.delivered_at.toString() : null);
+      // request.input('ReadAt', message.read_at ? message.read_at.toString() : null);
+request.input('SentAt', message.sent_at ? new Date(message.sent_at) : null);
+request.input('DeliveredAt', message.delivered_at ? new Date(message.delivered_at) : null);
+request.input('ReadAt', message.read_at ? new Date(message.read_at) : null);
 
       // Failure response
       if (message.failureResponse) {
+        console.log('⚠️ [FailureResponse]', message.failureResponse);
         request.input('FailureResponse', JSON.stringify(message.failureResponse));
       }
 
@@ -497,11 +392,13 @@ export class IncomingTextService {
 
       // MAU details
       if (message.mau_details) {
+        console.log('📊 [MAU Details]', message.mau_details);
         request.input('MauDetails', JSON.stringify(message.mau_details));
       }
 
       // WhatsApp conversation
       if (message.whatsapp_conversation_details) {
+        console.log('💬 [WA Conversation]', message.whatsapp_conversation_details.id);
         request.input('WhatsAppConversationDetails_Id', message.whatsapp_conversation_details.id);
         request.input('WhatsAppConversationDetails_Type', message.whatsapp_conversation_details.type);
       }
@@ -519,6 +416,7 @@ export class IncomingTextService {
         case 'image':
         case 'document':
           if ('contacts' in messageDto.data.message && messageDto.data.message.contacts) {
+            console.log('📞 [Contacts Detected]', messageDto.data.message.contacts);
             request.input('Contacts', JSON.stringify(messageDto.data.message.contacts));
           }
           break;
@@ -526,69 +424,10 @@ export class IncomingTextService {
 
       console.log('🗄️ [Executing SP] whatsApptemplatedatamanage with message ID:', message.id);
       const result = await request.execute('whatsApptemplatedatamanage');
+
       console.log('✅ [SP Completed] Stored procedure executed successfully.');
-
-      // -------------------------------
-      // 🚀 Smart Template Logic (one template at a time)
-      // -------------------------------
-      if (message.project_id === '6593fdb700f84f37323b819d' && message.type !== 'template') {
-        const cacheKey = `template_${message.phone_number}`;
-        const cached = this.templateCache.get<{ lastSentAt: number; lastIndex: number; awaitingResponse: boolean }>(cacheKey);
-        const now = Date.now();
-
-        // Define your sequence of templates
-        const templates = [
-          { name: 'test_iamge2', language: { code: 'en' }, components: [] },
-          { name: 'incoming_custome', language: { code: 'en' }, components: [] },
-          { name: 'infyvault_platform', language: { code: 'en' }, components: [] },
-        ];
-
-        // Only send template if user is awaiting response or no cache exists
-        if (!cached || cached.awaitingResponse) {
-          let nextIndex = 0;
-
-          if (cached) {
-            const diffMinutes = (now - cached.lastSentAt) / 60000; // 10 minutes
-            nextIndex = diffMinutes <= 10 ? (cached.lastIndex + 1) % templates.length : 0;
-          }
-
-          const selectedTemplate = templates[nextIndex];
-          console.log('📌 [Selected Template]', selectedTemplate.name);
-
-          // Send template
-          try {
-            const smartChatDto: SendChatMessageDto = {
-              projectId: message.project_id,
-              to: message.phone_number.startsWith('+') ? message.phone_number : `+${message.phone_number}`,
-              type: 'template',
-              template: selectedTemplate,
-            };
-            const smartResponse = await this.sendChatMessage(smartChatDto);
-            console.log('✅ [Smart Template Sent]', smartResponse);
-
-            // Update cache
-            this.templateCache.set(cacheKey, {
-              lastSentAt: now,
-              lastIndex: nextIndex,
-              awaitingResponse: true,
-            });
-          } catch (err) {
-            console.error('❌ [Smart Template Send Error]', err);
-          }
-        }
-      }
-
-      // If user sends non-template message, reset awaitingResponse to allow next template
-      if (message.type !== 'template') {
-        const cacheKey = `template_${message.phone_number}`;
-        const cached = this.templateCache.get<{ lastSentAt: number; lastIndex: number; awaitingResponse: boolean }>(cacheKey);
-        if (cached) {
-          cached.awaitingResponse = false;
-          this.templateCache.set(cacheKey, cached);
-        }
-      }
-
       return result;
+
     } catch (error) {
       console.error('❌ [DB Error] Failed to insert message:', error);
       throw new Error('Failed to process request');
@@ -599,6 +438,170 @@ export class IncomingTextService {
       }
     }
   }
+  // Add this cache at the top of your file (outside the class)
+
+
+  // public async executeInsertMessage(messageDto: MessageStatusUpdatedDto): Promise<any> {
+  //   let poolConnection;
+  //   try {
+  //     console.log('🚀 [DB Operation] Starting message insert...');
+  //     poolConnection = await this.pool.connect();
+  //     const request = new Request(poolConnection);
+
+  //     const message = messageDto.data.message;
+
+  //     // -------------------------------
+  //     // Insert common fields for all message types
+  //     // -------------------------------
+  //     request.input('processtype', 9);
+  //     request.input('Id', message.id);
+  //     request.input('Type', message.type);
+  //     request.input('PhoneNumber', message.phone_number);
+  //     request.input('ContactId', message.contact_id);
+  //     request.input('Campaign', JSON.stringify(message.campaign));
+  //     request.input('Sender', message.sender);
+  //     request.input('channel_no', message.project_id);
+
+  //     // Message Content
+  //     if (message.message_content) {
+  //       request.input('MessageContent_Text', message.message_content.text || null);
+  //       request.input('MessageContent_Caption', message.message_content.caption || null);
+  //       request.input('MessageContent_URL', message.message_content.url || null);
+  //       request.input('MessageContent_UrlExpiry', message.message_content.urlExpiry || null);
+  //     }
+
+  //     // Message meta info
+  //     request.input('MessageType', message.message_type);
+  //     request.input('Status', message.status);
+  //     request.input('IsHSM', message.is_HSM.toString());
+
+  //     // Chatbot response
+  //     if (message.chatbot_response) {
+  //       request.input('ChatbotResponse', JSON.stringify(message.chatbot_response));
+  //     }
+
+  //     // Optional values
+  //     request.input('AgentId', message.agent_id || null);
+  //     request.input('SentAt', message.sent_at ? message.sent_at.toString() : null);
+  //     request.input('DeliveredAt', message.delivered_at ? message.delivered_at.toString() : null);
+  //     request.input('ReadAt', message.read_at ? message.read_at.toString() : null);
+
+  //     // Failure response
+  //     if (message.failureResponse) {
+  //       request.input('FailureResponse', JSON.stringify(message.failureResponse));
+  //     }
+
+  //     // Other details
+  //     request.input('UserName', message.userName || null);
+  //     request.input('CountryCode', message.countryCode || null);
+  //     request.input('SubmittedMessageId', message.submitted_message_id || null);
+  //     request.input('MessagePrice', message.message_price.toString());
+  //     request.input('DeductionType', message.deductionType || null);
+
+  //     // MAU details
+  //     if (message.mau_details) {
+  //       request.input('MauDetails', JSON.stringify(message.mau_details));
+  //     }
+
+  //     // WhatsApp conversation
+  //     if (message.whatsapp_conversation_details) {
+  //       request.input('WhatsAppConversationDetails_Id', message.whatsapp_conversation_details.id);
+  //       request.input('WhatsAppConversationDetails_Type', message.whatsapp_conversation_details.type);
+  //     }
+
+  //     // Context
+  //     request.input('Context', JSON.stringify(message.context || {}));
+  //     request.input('MessageId', message.messageId);
+
+  //     // Handle attachments
+  //     switch (message.type) {
+  //       case 'voice':
+  //       case 'audio':
+  //       case 'video':
+  //       case 'text':
+  //       case 'image':
+  //       case 'document':
+  //         if ('contacts' in messageDto.data.message && messageDto.data.message.contacts) {
+  //           request.input('Contacts', JSON.stringify(messageDto.data.message.contacts));
+  //         }
+  //         break;
+  //     }
+
+  //     console.log('🗄️ [Executing SP] whatsApptemplatedatamanage with message ID:', message.id);
+  //     const result = await request.execute('whatsApptemplatedatamanage');
+  //     console.log('✅ [SP Completed] Stored procedure executed successfully.');
+
+  //     // -------------------------------
+  //     // 🚀 Smart Template Logic (one template at a time)
+  //     // -------------------------------
+  //     if (message.project_id === '6593fdb700f84f37323b819d' && message.type !== 'template') {
+  //       const cacheKey = `template_${message.phone_number}`;
+  //       const cached = this.templateCache.get<{ lastSentAt: number; lastIndex: number; awaitingResponse: boolean }>(cacheKey);
+  //       const now = Date.now();
+
+  //       // Define your sequence of templates
+  //       const templates = [
+  //         { name: 'test_iamge2', language: { code: 'en' }, components: [] },
+  //         { name: 'incoming_custome', language: { code: 'en' }, components: [] },
+  //         { name: 'infyvault_platform', language: { code: 'en' }, components: [] },
+  //       ];
+
+  //       // Only send template if user is awaiting response or no cache exists
+  //       if (!cached || cached.awaitingResponse) {
+  //         let nextIndex = 0;
+
+  //         if (cached) {
+  //           const diffMinutes = (now - cached.lastSentAt) / 60000; // 10 minutes
+  //           nextIndex = diffMinutes <= 10 ? (cached.lastIndex + 1) % templates.length : 0;
+  //         }
+
+  //         const selectedTemplate = templates[nextIndex];
+  //         console.log('📌 [Selected Template]', selectedTemplate.name);
+
+  //         // Send template
+  //         try {
+  //           const smartChatDto: SendChatMessageDto = {
+  //             projectId: message.project_id,
+  //             to: message.phone_number.startsWith('+') ? message.phone_number : `+${message.phone_number}`,
+  //             type: 'template',
+  //             template: selectedTemplate,
+  //           };
+  //           const smartResponse = await this.sendChatMessage(smartChatDto);
+  //           console.log('✅ [Smart Template Sent]', smartResponse);
+
+  //           // Update cache
+  //           this.templateCache.set(cacheKey, {
+  //             lastSentAt: now,
+  //             lastIndex: nextIndex,
+  //             awaitingResponse: true,
+  //           });
+  //         } catch (err) {
+  //           console.error('❌ [Smart Template Send Error]', err);
+  //         }
+  //       }
+  //     }
+
+  //     // If user sends non-template message, reset awaitingResponse to allow next template
+  //     if (message.type !== 'template') {
+  //       const cacheKey = `template_${message.phone_number}`;
+  //       const cached = this.templateCache.get<{ lastSentAt: number; lastIndex: number; awaitingResponse: boolean }>(cacheKey);
+  //       if (cached) {
+  //         cached.awaitingResponse = false;
+  //         this.templateCache.set(cacheKey, cached);
+  //       }
+  //     }
+
+  //     return result;
+  //   } catch (error) {
+  //     console.error('❌ [DB Error] Failed to insert message:', error);
+  //     throw new Error('Failed to process request');
+  //   } finally {
+  //     if (poolConnection) {
+  //       console.log('🔚 [DB Connection] Releasing connection...');
+  //       poolConnection.release();
+  //     }
+  //   }
+  // }
 
 
 
