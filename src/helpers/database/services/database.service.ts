@@ -13,7 +13,7 @@ export class DatabaseService implements TypeOrmOptionsFactory {
       username: process.env.DB_USER || 'azure-sa',
       password: process.env.DB_PASS || 'ugsf127ghFHSD86dfsDS',
       database: process.env.DB_NAME || 'iapl',
-      host: process.env.DB_HOST || 'infinitysqlmanagedinstance.22e461bedfe7.database.windows.net',
+      host: process.env.DB_HOST || '192.168.1.13',
       port: +dbPort,
       type: 'mssql',
       entities: entities,
