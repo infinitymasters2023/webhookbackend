@@ -60,6 +60,10 @@ export class SendChatMessageDto {
   @ApiPropertyOptional({ description: 'Caption for image or document' })
   caption?: string;
 
+  @ApiProperty()
+ employee_mid: number;
+@ApiProperty()
+       sender_name: string;
 
   template?: {
     name: string;

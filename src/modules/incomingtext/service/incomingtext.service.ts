@@ -610,6 +610,81 @@ request.input('ReadAt', message.read_at ? new Date(message.read_at) : null);
   private readonly apiBaseUrl = 'https://apis.aisensy.com/project-apis/v1/project';
 
 
+// public async sendChatMessage(dto: SendChatMessageDto): Promise<any> {
+//   try {
+//     const {
+//       to,
+//       type = 'text',
+//       body,
+//       imageLink,
+//       documentLink,
+//       caption,
+//       projectId,
+//       partnerApiKey, // ✅ make API key dynamic too
+//     } = dto;
+
+//     // ✅ Basic validations
+//     if (!projectId) {
+//       throw new Error('Project ID is required');
+//     }
+//     if (!partnerApiKey) {
+//       throw new Error('Partner API key is required');
+//     }
+
+//     // ✅ Ensure phone number starts with '+'
+//     const formattedTo = to.startsWith('+') ? to : `+${to}`;
+
+//     // ✅ Build base payload
+//     const payload: any = {
+//       projectId,
+//       to: formattedTo,
+//       type,
+//       recipient_type: 'individual',
+//     };
+
+//     // ✅ Handle message types
+//     switch (type) {
+//       case 'text':
+//         if (!body) throw new Error('Text message requires body');
+//         payload.text = { body };
+//         break;
+
+//       case 'image':
+//         if (!imageLink) throw new Error('Image message requires imageLink');
+//         payload.image = { link: imageLink, caption: caption || '' };
+//         break;
+
+//       case 'document':
+//         if (!documentLink) throw new Error('Document message requires documentLink');
+//         payload.document = { link: documentLink, caption: caption || '' };
+//         break;
+
+//       default:
+//         throw new Error('Invalid or unsupported message type');
+//     }
+
+//     // ✅ Send to AiSensy
+//     const response = await axios.post(
+//       `${this.apiBaseUrl}/${projectId}/messages`,
+//       payload,
+//       {
+//         headers: {
+//           'Content-Type': 'application/json',
+//           Accept: 'application/json',
+//           'X-AiSensy-Project-API-Pwd': partnerApiKey, // ✅ now dynamic
+//         },
+//       },
+//     );
+
+//     return response.data;
+//   } catch (error) {
+//     console.error('Error sending AiSensy chat message:', error.response?.data || error.message);
+//     throw new HttpException(
+//       error.response?.data || 'Failed to send chat message',
+//       error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
+//     );
+//   }
+// }
 public async sendChatMessage(dto: SendChatMessageDto): Promise<any> {
   try {
     const {
@@ -620,21 +695,21 @@ public async sendChatMessage(dto: SendChatMessageDto): Promise<any> {
       documentLink,
       caption,
       projectId,
-      partnerApiKey, // ✅ make API key dynamic too
+      partnerApiKey,
+      employee_mid,
+      sender_name,
     } = dto;
 
-    // ✅ Basic validations
-    if (!projectId) {
-      throw new Error('Project ID is required');
-    }
-    if (!partnerApiKey) {
-      throw new Error('Partner API key is required');
-    }
+    // ✅ Validations
+    if (!projectId) throw new Error('Project ID is required');
+    if (!partnerApiKey) throw new Error('Partner API key is required');
+
+    if (!sender_name) throw new Error('Sender name is required');
 
     // ✅ Ensure phone number starts with '+'
     const formattedTo = to.startsWith('+') ? to : `+${to}`;
 
-    // ✅ Build base payload
+    // ✅ Build payload
     const payload: any = {
       projectId,
       to: formattedTo,
@@ -642,7 +717,7 @@ public async sendChatMessage(dto: SendChatMessageDto): Promise<any> {
       recipient_type: 'individual',
     };
 
-    // ✅ Handle message types
+    // ✅ Message type handling
     switch (type) {
       case 'text':
         if (!body) throw new Error('Text message requires body');
@@ -663,7 +738,7 @@ public async sendChatMessage(dto: SendChatMessageDto): Promise<any> {
         throw new Error('Invalid or unsupported message type');
     }
 
-    // ✅ Send to AiSensy
+    // ✅ Send message to AiSensy API
     const response = await axios.post(
       `${this.apiBaseUrl}/${projectId}/messages`,
       payload,
@@ -671,14 +746,68 @@ public async sendChatMessage(dto: SendChatMessageDto): Promise<any> {
         headers: {
           'Content-Type': 'application/json',
           Accept: 'application/json',
-          'X-AiSensy-Project-API-Pwd': partnerApiKey, // ✅ now dynamic
+          'X-AiSensy-Project-API-Pwd': partnerApiKey,
         },
       },
     );
 
-    return response.data;
+    const apiResponse = response.data;
+    const conversationDetails = apiResponse?.message?.whatsapp_conversation_details || {};
+
+    // ✅ Insert log into MSSQL via stored procedure
+    const poolConnection = await this.pool.connect();
+    const request = new Request(poolConnection);
+
+    request.input('Employee_MID', employee_mid);
+    request.input('Sender_Name', sender_name);
+    request.input('ProjectId', projectId);
+    request.input('PartnerApiKey', partnerApiKey);
+    request.input('RecipientNumber', formattedTo);
+    request.input('MessageType', type);
+    request.input('MessageBody', body || null);
+    request.input('ImageLink', imageLink || null);
+    request.input('DocumentLink', documentLink || null);
+    request.input('Caption', caption || null);
+    request.input('TemplateName', null);
+    request.input('TemplateLanguageCode', null);
+    request.input('TemplateComponents', null);
+    request.input('WhatsAppConversationDetails_Id', conversationDetails.id || null);
+    request.input('WhatsAppConversationDetails_Type', conversationDetails.type || null);
+    request.input('ApiResponse', JSON.stringify(apiResponse));
+    request.input('Status', 'Sent');
+      request.input('processtype', 11);
+    await request.execute('whatsApptemplatedatamanage');
+
+    if (this.pool.connected) {
+      await this.pool.close();
+    }
+
+    return apiResponse;
+
   } catch (error) {
     console.error('Error sending AiSensy chat message:', error.response?.data || error.message);
+
+    // 🧾 Log failure as well
+    try {
+      const poolConnection = await this.pool.connect();
+      const request = new Request(poolConnection);
+
+      const dtoToLog = dto || {};
+     
+      request.input('TemplateName', null);
+      request.input('TemplateLanguageCode', null);
+      request.input('TemplateComponents', null);
+      request.input('WhatsAppConversationDetails_Id', null);
+      request.input('WhatsAppConversationDetails_Type', null);
+      request.input('ApiResponse', JSON.stringify(error.response?.data || error.message));
+      request.input('Status', 'Failed');
+
+      await request.execute('InsertAiSensyChatMessage');
+      if (this.pool.connected) await this.pool.close();
+    } catch (dbError) {
+      console.error('Error logging failed chat message:', dbError.message);
+    }
+
     throw new HttpException(
       error.response?.data || 'Failed to send chat message',
       error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
