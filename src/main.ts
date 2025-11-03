@@ -22,11 +22,14 @@ async function bootstrap() {
     .setVersion('1.0')
     .addBearerAuth()  
     .build();
+
+
   const port = process.env.PORT || '5099';
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('/', app, document);
   app.useGlobalPipes(new ValidationPipe());
   await app.listen(port);
+  console.log(`Application is running on: ${await app.getUrl()}`);
 }
 bootstrap();
 
