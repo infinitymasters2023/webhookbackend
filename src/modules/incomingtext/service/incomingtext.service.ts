@@ -373,9 +373,10 @@ export class IncomingTextService {
       // request.input('SentAt', message.sent_at ? message.sent_at.toString() : null);
       // request.input('DeliveredAt', message.delivered_at ? message.delivered_at.toString() : null);
       // request.input('ReadAt', message.read_at ? message.read_at.toString() : null);
-request.input('SentAt', message.sent_at ? new Date(message.sent_at) : null);
-request.input('DeliveredAt', message.delivered_at ? new Date(message.delivered_at) : null);
-request.input('ReadAt', message.read_at ? new Date(message.read_at) : null);
+request.input('SentAt', message.sent_at || null);
+request.input('DeliveredAt', message.delivered_at || null);
+request.input('ReadAt', message.read_at || null);
+
 
       // Failure response
       if (message.failureResponse) {
@@ -387,7 +388,7 @@ request.input('ReadAt', message.read_at ? new Date(message.read_at) : null);
       request.input('UserName', message.userName || null);
       request.input('CountryCode', message.countryCode || null);
       request.input('SubmittedMessageId', message.submitted_message_id || null);
-      request.input('MessagePrice', message.message_price.toString());
+ //     request.input('MessagePrice', message.message_price.toString());
       request.input('DeductionType', message.deductionType || null);
 
       // MAU details
