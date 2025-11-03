@@ -9,6 +9,6 @@ export class AppService {
   @Cron('0 7 * * *', { timeZone: 'Asia/Kolkata' }) // Adjust the time zone as needed
   handleCron() {
     this.logger.debug('Executing task at 7:00 AM every day');
-    // Add your WhatsApp API task or any other logic here
+    // Add your WhatsApp API task or any other logic he
   }
 }
