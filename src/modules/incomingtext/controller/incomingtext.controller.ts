@@ -97,21 +97,21 @@ async smartpingsendMessagess(@Body() sendMessageDto: MessageStatusUpdatedDto): P
   async sendMessage(@Body() sendChatMessageDto: SendChatMessageDto) {
     return await this.whatsappWebhookService.sendChatMessage(sendChatMessageDto);
   }
-@Get('message/:projectId/:messageId')
-  @ApiOperation({ summary: 'Get details of a chat message via AiSensy' })
-  @ApiParam({ name: 'projectId', description: 'AiSensy Project ID' })
-  @ApiParam({ name: 'messageId', description: 'AiSensy Message ID' })
-  @ApiResponse({ status: 200, description: 'Message details retrieved successfully' })
-  @ApiResponse({ status: 400, description: 'Invalid request' })
-  @ApiResponse({ status: 500, description: 'Internal server error' })
-  async getMessage(
-    @Param('projectId') projectId: string,
-    @Param('messageId') messageId: string,
-  ) {
-    if (!projectId || !messageId) {
-      throw new HttpException('ProjectId and MessageId are required', HttpStatus.BAD_REQUEST);
-    }
+// @Get('message/:projectId/:messageId')
+//   @ApiOperation({ summary: 'Get details of a chat message via AiSensy' })
+//   @ApiParam({ name: 'projectId', description: 'AiSensy Project ID' })
+//   @ApiParam({ name: 'messageId', description: 'AiSensy Message ID' })
+//   @ApiResponse({ status: 200, description: 'Message details retrieved successfully' })
+//   @ApiResponse({ status: 400, description: 'Invalid request' })
+//   @ApiResponse({ status: 500, description: 'Internal server error' })
+//   async getMessage(
+//     @Param('projectId') projectId: string,
+//     @Param('messageId') messageId: string,
+//   ) {
+//     if (!projectId || !messageId) {
+//       throw new HttpException('ProjectId and MessageId are required', HttpStatus.BAD_REQUEST);
+//     }
 
-    return this.whatsappWebhookService.getMessageDetails(projectId, messageId);
-  }
+//     return this.whatsappWebhookService.getMessageDetails(projectId, messageId);
+//   }
 }

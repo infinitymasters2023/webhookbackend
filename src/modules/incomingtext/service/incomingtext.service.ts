@@ -608,95 +608,172 @@ request.input('ReadAt', message.read_at ? new Date(message.read_at) : null);
   /*************************************smartping chat*********************************************************************** */
 
   private readonly apiBaseUrl = 'https://apis.aisensy.com/project-apis/v1/project';
-  private readonly partnerApiKey = 'e7cd0798dc1fcd42ccf05';
-
-  public async sendChatMessage(dto: SendChatMessageDto): Promise<any> {
-    try {
-      const { to, type = 'text', body, imageLink, documentLink, caption, template } = dto;
-
-      // ✅ Always ensure phone number has a '+' prefix
-      const formattedTo = to.startsWith('+') ? to : `+${to}`;
-
-      const payload: any = {
-        projectId: '6593fdb700f84f37323b819d',
-        to: formattedTo,
-        type,
-        recipient_type: 'individual',
-      };
 
 
-      if (type === 'text') {
+public async sendChatMessage(dto: SendChatMessageDto): Promise<any> {
+  try {
+    const {
+      to,
+      type = 'text',
+      body,
+      imageLink,
+      documentLink,
+      caption,
+      projectId,
+      partnerApiKey, // ✅ make API key dynamic too
+    } = dto;
+
+    // ✅ Basic validations
+    if (!projectId) {
+      throw new Error('Project ID is required');
+    }
+    if (!partnerApiKey) {
+      throw new Error('Partner API key is required');
+    }
+
+    // ✅ Ensure phone number starts with '+'
+    const formattedTo = to.startsWith('+') ? to : `+${to}`;
+
+    // ✅ Build base payload
+    const payload: any = {
+      projectId,
+      to: formattedTo,
+      type,
+      recipient_type: 'individual',
+    };
+
+    // ✅ Handle message types
+    switch (type) {
+      case 'text':
+        if (!body) throw new Error('Text message requires body');
         payload.text = { body };
-      } else if (type === 'image' && imageLink) {
+        break;
+
+      case 'image':
+        if (!imageLink) throw new Error('Image message requires imageLink');
         payload.image = { link: imageLink, caption: caption || '' };
-      } else if (type === 'document' && documentLink) {
+        break;
+
+      case 'document':
+        if (!documentLink) throw new Error('Document message requires documentLink');
         payload.document = { link: documentLink, caption: caption || '' };
-      } else if (type === 'template') {
-        // Use provided template if exists, otherwise default
-        const tpl = template || {
-          name: 'test_iamge2',
-          language: { code: 'en' },
-          components: [],
-        };
+        break;
 
-        // Ensure components is always an array
-        tpl.components = tpl.components || [];
-
-        payload.template = {
-          name: tpl.name,
-          language: tpl.language,
-          components: tpl.components,
-        };
-      } else {
-        throw new Error('Invalid message type or missing content');
-      }
-
-      const response = await axios.post(
-        `${this.apiBaseUrl}/${payload.projectId}/messages`,
-        payload,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Accept: 'application/json',
-            'X-AiSensy-Project-API-Pwd': this.partnerApiKey,
-          },
-        },
-      );
-
-      return response.data;
-    } catch (error) {
-      console.error('Error sending AiSensy chat message:', error.response?.data || error.message);
-      throw new HttpException(
-        error.response?.data || 'Failed to send chat message',
-        error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      default:
+        throw new Error('Invalid or unsupported message type');
     }
-  }
 
-
-
-
-  public async getMessageDetails(projectId: string, messageId: string): Promise<any> {
-    try {
-      const response = await axios.get(
-        `${this.apiBaseUrl}/${projectId}/messages/${messageId}`,
-        {
-          headers: {
-            'Accept': 'application/json',
-            'X-AiSensy-Project-API-Pwd': this.partnerApiKey,
-          },
+    // ✅ Send to AiSensy
+    const response = await axios.post(
+      `${this.apiBaseUrl}/${projectId}/messages`,
+      payload,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          'X-AiSensy-Project-API-Pwd': partnerApiKey, // ✅ now dynamic
         },
-      );
+      },
+    );
 
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching AiSensy message details:', error.response?.data || error.message);
-      throw new HttpException(
-        error.response?.data || 'Failed to fetch message details',
-        error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    return response.data;
+  } catch (error) {
+    console.error('Error sending AiSensy chat message:', error.response?.data || error.message);
+    throw new HttpException(
+      error.response?.data || 'Failed to send chat message',
+      error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
+    );
   }
+}
+
+
+  // public async sendChatMessage(dto: SendChatMessageDto): Promise<any> {
+  //   try {
+  //     const { to, type = 'text', body, imageLink, documentLink, caption, template } = dto;
+
+  //     // ✅ Always ensure phone number has a '+' prefix
+  //     const formattedTo = to.startsWith('+') ? to : `+${to}`;
+
+  //     const payload: any = {
+  //       projectId: '671f5ab71e0f320bf9a1aae3',
+  //       to: formattedTo,
+  //       type,
+  //       recipient_type: 'individual',
+  //     };
+
+
+  //     if (type === 'text') {
+  //       payload.text = { body };
+  //     } else if (type === 'image' && imageLink) {
+  //       payload.image = { link: imageLink, caption: caption || '' };
+  //     } else if (type === 'document' && documentLink) {
+  //       payload.document = { link: documentLink, caption: caption || '' };
+  //     } else if (type === 'template') {
+  //       // Use provided template if exists, otherwise default
+  //       const tpl = template || {
+  //         name: 'test_iamge2',
+  //         language: { code: 'en' },
+  //         components: [],
+  //       };
+
+  //       // Ensure components is always an array
+  //       tpl.components = tpl.components || [];
+
+  //       payload.template = {
+  //         name: tpl.name,
+  //         language: tpl.language,
+  //         components: tpl.components,
+  //       };
+  //     } else {
+  //       throw new Error('Invalid message type or missing content');
+  //     }
+
+  //     const response = await axios.post(
+  //       `${this.apiBaseUrl}/${payload.projectId}/messages`,
+  //       payload,
+  //       {
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //           Accept: 'application/json',
+  //           'X-AiSensy-Project-API-Pwd': this.partnerApiKey,
+  //         },
+  //       },
+  //     );
+
+  //     return response.data;
+  //   } catch (error) {
+  //     console.error('Error sending AiSensy chat message:', error.response?.data || error.message);
+  //     throw new HttpException(
+  //       error.response?.data || 'Failed to send chat message',
+  //       error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
+  //     );
+  //   }
+  // }
+
+
+
+
+  // public async getMessageDetails(projectId: string, messageId: string): Promise<any> {
+  //   try {
+  //     const response = await axios.get(
+  //       `${this.apiBaseUrl}/${projectId}/messages/${messageId}`,
+  //       {
+  //         headers: {
+  //           'Accept': 'application/json',
+  //           'X-AiSensy-Project-API-Pwd': this.partnerApiKey,
+  //         },
+  //       },
+  //     );
+
+  //     return response.data;
+  //   } catch (error) {
+  //     console.error('Error fetching AiSensy message details:', error.response?.data || error.message);
+  //     throw new HttpException(
+  //       error.response?.data || 'Failed to fetch message details',
+  //       error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
+  //     );
+  //   }
+  // }
 
 
 }

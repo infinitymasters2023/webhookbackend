@@ -35,7 +35,10 @@ export class SendChatMessageDto {
   @ApiProperty({ description: 'AiSensy project ID' })
   projectId: string;
 
-  @ApiProperty({ description: 'Recipient phone number in international format' })
+  @ApiProperty({ description: 'Partner API key for the AiSensy project' })
+  partnerApiKey: string; // ✅ Added dynamic partner API key
+
+  @ApiProperty({ description: 'Recipient phone number in international format (e.g., +911234567890)' })
   to: string;
 
   @ApiPropertyOptional({
@@ -57,23 +60,7 @@ export class SendChatMessageDto {
   @ApiPropertyOptional({ description: 'Caption for image or document' })
   caption?: string;
 
-  @ApiPropertyOptional({
-    description: 'Template message object (required if type is template)',
-    type: Object,
-    example: {
-      name: 'incoming_customer',
-      language: { code: 'en_US' },
-      components: [
-        {
-          type: 'body',
-          parameters: [
-            { type: 'text', text: 'John' },
-            { type: 'text', text: 'Welcome!' }
-          ]
-        }
-      ]
-    },
-  })
+
   template?: {
     name: string;
     language: { code: string };
