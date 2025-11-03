@@ -7,7 +7,6 @@ import { IncomingTextModule } from './modules/incomingtext/incomingtex.module';
 import { DatabaseModule } from './common/database/database.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { ErrorHandlerService } from './error-handler.service';
-<<<<<<< Updated upstream
 // Import the ErrorHandlerService
 
 @Module({
@@ -16,20 +15,6 @@ import { ErrorHandlerService } from './error-handler.service';
     DatabaseModule,
     IncomingTextModule,
     AuthModule
-=======
-import { ScheduleModule } from '@nestjs/schedule';
-// Import the ErrorHandlerService
-
-@Module({
-  
-  imports: [
-    ScheduleModule.forRoot(),
-    HelperModule,
-    DatabaseModule,
-    IncomingTextModule,
-    AuthModule,
-    
->>>>>>> Stashed changes
   ],
   controllers: [AppController],
   providers: [
