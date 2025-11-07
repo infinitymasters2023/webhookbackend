@@ -1,6 +1,7 @@
 /* eslint-disable prettier/prettier */
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { ConnectionPool, Request } from 'mssql';
+import * as sql from 'mssql';
 import { WhatsappDto } from '../dtos/incomingtext-payload.dto';
 import axios from 'axios';
 import { SendMessageDtoo, SendMessageDtoooo } from '../dtos/newimagesdtos';
@@ -373,9 +374,10 @@ export class IncomingTextService {
       // request.input('SentAt', message.sent_at ? message.sent_at.toString() : null);
       // request.input('DeliveredAt', message.delivered_at ? message.delivered_at.toString() : null);
       // request.input('ReadAt', message.read_at ? message.read_at.toString() : null);
-request.input('SentAt', message.sent_at || null);
-request.input('DeliveredAt', message.delivered_at || null);
-request.input('ReadAt', message.read_at || null);
+
+request.input('SentAt', sql.BigInt, message.sent_at || null);
+request.input('DeliveredAt', sql.BigInt, message.delivered_at || null);
+request.input('ReadAt', sql.BigInt, message.read_at || null);
 
 
       // Failure response
