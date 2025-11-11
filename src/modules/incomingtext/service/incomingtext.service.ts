@@ -371,13 +371,13 @@ export class IncomingTextService {
 
       // Optional values
       request.input('AgentId', message.agent_id || null);
-      // request.input('SentAt', message.sent_at ? message.sent_at.toString() : null);
-      // request.input('DeliveredAt', message.delivered_at ? message.delivered_at.toString() : null);
-      // request.input('ReadAt', message.read_at ? message.read_at.toString() : null);
+      request.input('SentAt', message.sent_at ? message.sent_at.toString() : null);
+      request.input('DeliveredAt', message.delivered_at ? message.delivered_at.toString() : null);
+      request.input('ReadAt', message.read_at ? message.read_at.toString() : null);
 
-request.input('SentAt', sql.BigInt, message.sent_at || null);
-request.input('DeliveredAt', sql.BigInt, message.delivered_at || null);
-request.input('ReadAt', sql.BigInt, message.read_at || null);
+// request.input('SentAt', sql.BigInt, message.sent_at || null);
+// request.input('DeliveredAt', sql.BigInt, message.delivered_at || null);
+// request.input('ReadAt', sql.BigInt, message.read_at || null);
 
 
       // Failure response
